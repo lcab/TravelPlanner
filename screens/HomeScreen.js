@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { screenStyles } from '../styles';
 
-function Home() {
+const HomeScreen = () => {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Screen 1</Text>
+    <View style={screenStyles.container}>
+      <Text>HomeScreen</Text>
     </View>
   );
 }
 
-export default Home;
+export default HomeScreen;

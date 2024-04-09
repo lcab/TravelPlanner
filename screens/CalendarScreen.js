@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Button, Platform } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
 import * as CalendarAPI from 'expo-calendar';
+import { screenStyles } from '../styles';
 
 export default function CalendarScreen() {
   const [calendars, setCalendars] = useState([]);
@@ -25,7 +26,7 @@ export default function CalendarScreen() {
     const calendars = await CalendarAPI.getCalendarsAsync(CalendarAPI.EntityTypes.EVENT);
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setFullYear(endDate.getFullYear() + 1); // Load events for the next year
+    endDate.setFullYear(endDate.getFullYear() + 1); 
 
     const allEvents = {};
     for (const calendar of calendars) {
@@ -42,7 +43,7 @@ export default function CalendarScreen() {
   const loadEvents = async (day) => {
     const startDate = new Date(day.dateString);
     const endDate = new Date(day.dateString);
-    endDate.setDate(endDate.getDate() + 1); // Next day
+    endDate.setDate(endDate.getDate() + 1);
 
     try {
       const events = await CalendarAPI.getEventsAsync([CalendarAPI.EntityTypes.EVENT], startDate, endDate);
@@ -55,7 +56,6 @@ export default function CalendarScreen() {
       }
     } catch (error) {
       console.error('Error fetching events:', error);
-      // Handle error appropriately, e.g., show an error message to the user
     }
   };
 

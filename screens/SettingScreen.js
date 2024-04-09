@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Switch, TextInput, Button, StyleSheet } from 'react-native';
+import { screenStyles } from '../styles';
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);

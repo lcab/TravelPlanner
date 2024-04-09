@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, tabBarStyles } from './styles'; 
 
 import HomeScreen from './screens/HomeScreen';
 import CalendarScreen from './screens/CalendarScreen';
@@ -11,14 +11,7 @@ import SettingScreen from './screens/SettingScreen';
 
 const Tab = createBottomTabNavigator();
 
-const colors = {
-  primary: '#f7934c',   
-  secondary: '#cc5803', 
-  background: '#fefae0', 
-  text: '#1f1300'       
-};
-
-function App() {
+const App = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -41,31 +34,16 @@ function App() {
         tabBarOptions={{
           activeTintColor: colors.primary,
           inactiveTintColor: colors.text,
-          style: styles.tabBar,
+          style: tabBarStyles.tabBar, 
         }}
       >
-        <Tab.Screen name="Home">
-          {() => <HomeScreen styles={styles} />}
-        </Tab.Screen>
-        <Tab.Screen name="Calendar">
-          {() => <CalendarScreen styles={styles} />}
-        </Tab.Screen>
-        <Tab.Screen name="Itinerary">
-          {() => <ItineraryScreen styles={styles} />}
-        </Tab.Screen>
-        <Tab.Screen name="Setting">
-          {() => <SettingScreen styles={styles} />}
-        </Tab.Screen>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Itinerary" component={ItineraryScreen} />
+        <Tab.Screen name="Calendar" component={CalendarScreen} />
+        <Tab.Screen name="Setting" component={SettingScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: colors.background,
-    borderTopColor: colors.primary,
-  },
-});
 
 export default App;
