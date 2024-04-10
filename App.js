@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,7 +8,7 @@ import { colors, tabBarStyles } from './styles';
 import HomeScreen from './screens/HomeScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import ItineraryScreen from './screens/ItineraryScreen';
-import SettingScreen from './screens/SettingScreen';
+import SettingStack from './SettingsStack/SettingsStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +41,7 @@ const App = () => {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Itinerary" component={ItineraryScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
-        <Tab.Screen name="Setting" component={SettingScreen} />
+        <Tab.Screen name="Setting" component={SettingStack} />
       </Tab.Navigator>
     </NavigationContainer>
   );
