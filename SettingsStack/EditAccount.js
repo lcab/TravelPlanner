@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, Switch, TextInput, Button, StyleSheet} from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { screenStyles } from '../styles';
 
@@ -9,7 +9,7 @@ const EditAccount = ({ navigation }) => {
 
   return (
     <View>
-    <Text>Budgets Screen</Text>
+    <Text>Edit user</Text>
 
 
   </View>
