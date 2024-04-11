@@ -1,175 +1,577 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Button, Platform } from 'react-native';
-import { CalendarList } from 'react-native-calendars';
-import * as CalendarAPI from 'expo-calendar';
-import { screenStyles } from '../styles';
+import React, { useState, Fragment, useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Calendar, CalendarUtils } from 'react-native-calendars';
+import testIDs from '../testIDs';
 
-export default function CalendarScreen() {
-  const [calendars, setCalendars] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [events, setEvents] = useState({});
+const INITIAL_DATE = '2022-07-06';
 
-  useEffect(() => {
-    fetchCalendars();
-    loadAllEvents();
+const CalendarScreen = () => {
+  const [selected, setSelected] = useState(INITIAL_DATE);
+  const [currentMonth, setCurrentMonth] = useState(INITIAL_DATE);
+
+  const getDate = (count) => {
+    const date = new Date(INITIAL_DATE);
+    const newDate = date.setDate(date.getDate() + count);
+    return CalendarUtils.getCalendarDateString(newDate);
+  };
+
+  const onDayPress = useCallback((day) => {
+    setSelected(day.dateString);
   }, []);
 
-  const fetchCalendars = async () => {
-    const { status } = await CalendarAPI.requestCalendarPermissionsAsync();
-    if (status === 'granted') {
-      const fetchedCalendars = await CalendarAPI.getCalendarsAsync(CalendarAPI.EntityTypes.EVENT);
-      setCalendars(fetchedCalendars);
-    }
-  };
-
-  const loadAllEvents = async () => {
-    const calendars = await CalendarAPI.getCalendarsAsync(CalendarAPI.EntityTypes.EVENT);
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setFullYear(endDate.getFullYear() + 1); 
-
-    const allEvents = {};
-    for (const calendar of calendars) {
-      const events = await CalendarAPI.getEventsAsync([calendar.id], startDate, endDate);
-      for (const date in events) {
-        if (events[date].length > 0) {
-          allEvents[date] = events[date];
-        }
+  const marked = useMemo(() => {
+    return {
+      [getDate(-1)]: {
+        dotColor: 'red',
+        marked: true
+      },
+      [selected]: {
+        selected: true,
+        disableTouchEvent: true,
+        selectedColor: 'orange',
+        selectedTextColor: 'red'
       }
-    }
-    setEvents(allEvents);
+    };
+  }, [selected]);
+
+  const renderCalendarWithSelectableDate = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with selectable date</Text>
+        <Calendar
+          testID={testIDs.calendars.FIRST}
+          enableSwipeMonths
+          current={INITIAL_DATE}
+          style={styles.calendar}
+          onDayPress={onDayPress}
+          markedDates={marked}
+        />
+      </Fragment>
+    );
   };
 
-  const loadEvents = async (day) => {
-    const startDate = new Date(day.dateString);
-    const endDate = new Date(day.dateString);
-    endDate.setDate(endDate.getDate() + 1);
-
-    try {
-      const events = await CalendarAPI.getEventsAsync([CalendarAPI.EntityTypes.EVENT], startDate, endDate);
-      if (events) {
-        console.log('Events:', events);
-        setEvents({ ...events, [day.dateString]: events });
-      } else {
-        console.log('No events found for the selected day.');
-        setEvents((prevEvents) => ({ ...prevEvents, [day.dateString]: [] }));
-      }
-    } catch (error) {
-      console.error('Error fetching events:', error);
-    }
+  const renderCalendarWithWeekNumbers = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with week numbers</Text>
+        <Calendar style={styles.calendar} hideExtraDays showWeekNumbers />
+      </Fragment>
+    );
   };
 
-  const handleDayPress = (day) => {
-    setSelectedDay(day.dateString);
-    loadEvents(day);
+  const renderCalendarWithMinAndMaxDates = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with min and max dates</Text>
+        <Calendar
+          style={styles.calendar}
+          hideExtraDays
+          current={INITIAL_DATE}
+          minDate={getDate(-6)}
+          maxDate={getDate(6)}
+          disableAllTouchEventsForDisabledDays
+        />
+      </Fragment>
+    );
   };
 
-const renderDay = (day, item) => {
-  const hasEvents = events[day.dateString] && events[day.dateString].length > 0;
+  const renderCalendarWithMarkedDatesAndHiddenArrows = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with marked dates and hidden arrows</Text>
+        <Calendar
+          style={styles.calendar}
+          current={INITIAL_DATE}
+          hideExtraDays
+          firstDay={1}
+          markedDates={{
+            [getDate(6)]: { selected: true, marked: true, disableTouchEvent: true },
+            [getDate(7)]: { selected: true, marked: true, dotColor: 'red' },
+            [getDate(8)]: { marked: true, dotColor: 'red', disableTouchEvent: true },
+            [getDate(9)]: { marked: true },
+            [getDate(10)]: { disabled: true, activeOpacity: 0, disableTouchEvent: false }
+          }}
+          hideArrows={true}
+          // disabledByDefault={true}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithMultiDotMarking = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with multi-dot marking</Text>
+        <Calendar
+          style={styles.calendar}
+          current={INITIAL_DATE}
+          markingType={'multi-dot'}
+          markedDates={{
+            [getDate(2)]: {
+              selected: true,
+              dots: [
+                { key: 'vacation', color: 'blue', selectedDotColor: 'red' },
+                { key: 'massage', color: 'red', selectedDotColor: 'white' }
+              ]
+            },
+            [getDate(3)]: {
+              disabled: true,
+              dots: [
+                { key: 'vacation', color: 'green', selectedDotColor: 'red' },
+                { key: 'massage', color: 'red', selectedDotColor: 'green' }
+              ]
+            }
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithPeriodMarkingAndSpinner = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with period marking and spinner</Text>
+        <Calendar
+          // style={styles.calendar}
+          current={INITIAL_DATE}
+          minDate={getDate(-5)}
+          displayLoadingIndicator
+          markingType={'period'}
+          theme={{
+            calendarBackground: '#333248',
+            textSectionTitleColor: 'white',
+            textSectionTitleDisabledColor: 'gray',
+            dayTextColor: 'red',
+            todayTextColor: 'white',
+            selectedDayTextColor: 'white',
+            monthTextColor: 'white',
+            indicatorColor: 'white',
+            selectedDayBackgroundColor: '#333248',
+            arrowColor: 'white',
+            // textDisabledColor: 'red',
+            stylesheet: {
+              calendar: {
+                header: {
+                  week: {
+                    marginTop: 30,
+                    marginHorizontal: 12,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                  }
+                }
+              }
+            }
+          }}
+          markedDates={{
+            [getDate(-2)]: { disabled: true },
+            [getDate(1)]: { textColor: 'pink' },
+            [getDate(2)]: { textColor: 'pink' },
+            [getDate(12)]: { startingDay: true, color: 'green', endingDay: true },
+            [getDate(22)]: { startingDay: true, color: 'green' },
+            [getDate(23)]: { endingDay: true, color: 'gray' },
+            [getDate(25)]: { startingDay: true, color: 'gray' },
+            [getDate(26)]: { color: 'gray' },
+            [getDate(27)]: { endingDay: true, color: 'gray' }
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithPeriodMarkingAndDotMarking = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with period marking and dot marking</Text>
+        <Calendar
+          current={INITIAL_DATE}
+          minDate={getDate(-14)}
+          markingType={'period'}
+          markedDates={{
+            [INITIAL_DATE]: { marked: true, dotColor: '#50cebb' },
+            [getDate(4)]: { marked: true, dotColor: '#50cebb' },
+            [getDate(9)]: { startingDay: true, color: '#50cebb', textColor: 'white' },
+            [getDate(10)]: {
+              color: '#70d7c7',
+              customTextStyle: {
+                color: '#FFFAAA',
+                fontWeight: '700'
+              }
+            },
+            [getDate(11)]: { color: '#70d7c7', textColor: 'white', marked: true, dotColor: 'white' },
+            [getDate(12)]: { color: '#70d7c7', inactive: true },
+            [getDate(13)]: {
+              endingDay: true,
+              color: '#50cebb',
+              textColor: 'white',
+              customContainerStyle: {
+                borderTopRightRadius: 5,
+                borderBottomRightRadius: 5
+              }
+            },
+            [getDate(25)]: { inactive: true, disableTouchEvent: true }
+          }}
+          disabledDaysIndexes={[0, 6]}
+          theme={{
+            textInactiveColor: '#a68a9f',
+            textSectionTitleDisabledColor: 'grey',
+            textSectionTitleColor: '#319e8e',
+            arrowColor: '#319e8e'
+          }}
+          onDayPress={(day) => console.warn(`${day.dateString} pressed`)}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithMultiPeriodMarking = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with multi-period marking</Text>
+        <Calendar
+          style={styles.calendar}
+          current={INITIAL_DATE}
+          markingType={'multi-period'}
+          markedDates={{
+            [INITIAL_DATE]: {
+              periods: [
+                { startingDay: true, endingDay: false, color: 'green' },
+                { startingDay: true, endingDay: false, color: 'orange' }
+              ]
+            },
+            [getDate(1)]: {
+              periods: [
+                { startingDay: false, endingDay: true, color: 'green' },
+                { startingDay: false, endingDay: true, color: 'orange' },
+                { startingDay: true, endingDay: false, color: 'pink' }
+              ]
+            },
+            [getDate(3)]: {
+              periods: [
+                { startingDay: true, endingDay: true, color: 'orange' },
+                { color: 'transparent' },
+                { startingDay: false, endingDay: false, color: 'pink' }
+              ]
+            }
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithCustomMarkingType = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Custom calendar with custom marking type</Text>
+        <Calendar
+          style={styles.calendar}
+          hideExtraDays
+          current={INITIAL_DATE}
+          minDate={INITIAL_DATE}
+          markingType={'custom'}
+          markedDates={{
+            [INITIAL_DATE]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'white',
+                  elevation: 2
+                },
+                text: {
+                  color: 'red',
+                  marginTop: 0
+                }
+              }
+            },
+            [getDate(8)]: {
+              selected: true
+            },
+            [getDate(9)]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'red',
+                  elevation: 4
+                },
+                text: {
+                  color: 'white'
+                }
+              }
+            },
+            [getDate(14)]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'green'
+                },
+                text: {
+                  color: 'white'
+                }
+              }
+            },
+            [getDate(15)]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'black',
+                  elevation: 2
+                },
+                text: {
+                  color: 'yellow'
+                }
+              }
+            },
+            [getDate(21)]: {
+              disabled: true
+            },
+            [getDate(28)]: {
+              customStyles: {
+                text: {
+                  color: 'black',
+                  fontWeight: 'bold'
+                }
+              }
+            },
+            [getDate(30)]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'pink',
+                  elevation: 4,
+                  borderColor: 'purple',
+                  borderWidth: 5
+                },
+                text: {
+                  marginTop: 3,
+                  fontSize: 11,
+                  color: 'black'
+                }
+              }
+            },
+            [getDate(31)]: {
+              customStyles: {
+                container: {
+                  backgroundColor: 'orange',
+                  borderRadius: 0
+                }
+              }
+            }
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithCustomDay = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with custom day component</Text>
+        <Calendar
+          style={[styles.calendar, styles.customCalendar]}
+          dayComponent={({ date, state }) => {
+            return (
+              <View>
+                <Text style={[styles.customDay, state === 'disabled' ? styles.disabledText : styles.defaultText]}>
+                  {date?.day}
+                </Text>
+              </View>
+            );
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithCustomHeaderTitle = () => {
+    const [selectedValue, setSelectedValue] = useState(new Date());
+
+    const getNewSelectedDate = useCallback(
+      (date, shouldAdd) => {
+        const newMonth = new Date(date).getMonth();
+        const month = shouldAdd ? newMonth + 1 : newMonth - 1;
+        const newDate = new Date(selectedValue.setMonth(month));
+        const newSelected = new Date(newDate.setDate(1));
+        return newSelected;
+      },
+      [selectedValue]
+    );
+    const onPressArrowLeft = useCallback(
+      (subtract, month) => {
+        const newDate = getNewSelectedDate(month, false);
+        setSelectedValue(newDate);
+        subtract();
+      },
+      [getNewSelectedDate]
+    );
+
+    const onPressArrowRight = useCallback(
+      (add, month) => {
+        const newDate = getNewSelectedDate(month, true);
+        setSelectedValue(newDate);
+        add();
+      },
+      [getNewSelectedDate]
+    );
+
+    const CustomHeaderTitle = (
+      <TouchableOpacity style={styles.customTitleContainer} onPress={() => console.warn('Tapped!')}>
+        <Text style={styles.customTitle}>{selectedValue.getMonth() + 1}-{selectedValue.getFullYear()}</Text>
+      </TouchableOpacity>
+    );
+
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with custom header title</Text>
+        <Calendar
+          style={styles.calendar}
+          customHeaderTitle={CustomHeaderTitle}
+          onPressArrowLeft={onPressArrowLeft}
+          onPressArrowRight={onPressArrowRight}
+        />
+      </Fragment>
+    );
+  };
+
+  const customHeaderProps = useRef();
+
+  const setCustomHeaderNewMonth = (next = false) => {
+    const add = next ? 1 : -1;
+    const month = new Date(customHeaderProps?.current?.month);
+    const newMonth = new Date(month.setMonth(month.getMonth() + add));
+    customHeaderProps?.current?.addMonth(add);
+    setCurrentMonth(newMonth.toISOString().split('T')[0]);
+  };
+  const moveNext = () => {
+    setCustomHeaderNewMonth(true);
+  };
+  const movePrevious = () => {
+    setCustomHeaderNewMonth(false);
+  };
+
+  const renderCalendarWithCustomHeader = () => {
+    const CustomHeader = React.forwardRef((props, ref) => {
+      customHeaderProps.current = props;
+
+      return (
+        // @ts-expect-error
+        <View ref={ref} {...props} style={styles.customHeader}>
+          <TouchableOpacity onPress={movePrevious}>
+            <Text>Previous</Text>
+          </TouchableOpacity>
+          <Text>Custom header!</Text>
+          <Text>{currentMonth}</Text>
+          <TouchableOpacity onPress={moveNext}>
+            <Text>Next</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    });
+
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with custom header component</Text>
+        <Calendar
+          initialDate={INITIAL_DATE}
+          testID={testIDs.calendars.LAST}
+          style={[styles.calendar, styles.customCalendar]}
+          customHeader={CustomHeader}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderCalendarWithInactiveDays = () => {
+    return (
+      <Fragment>
+        <Text style={styles.text}>Calendar with inactive days</Text>
+        <Calendar
+          style={styles.calendar}
+          disableAllTouchEventsForInactiveDays
+          current={INITIAL_DATE}
+          markedDates={{
+            [getDate(3)]: {
+              inactive: true
+            },
+            [getDate(4)]: {
+              inactive: true
+            }
+          }}
+        />
+      </Fragment>
+    );
+  };
+
+  const renderExamples = () => {
+    return (
+      <Fragment>
+        {renderCalendarWithSelectableDate()}
+        {renderCalendarWithWeekNumbers()}
+        {renderCalendarWithMinAndMaxDates()}
+        {renderCalendarWithCustomDay()}
+        {renderCalendarWithInactiveDays()}
+        {renderCalendarWithCustomHeaderTitle()}
+        {renderCalendarWithCustomHeader()}
+        {renderCalendarWithMarkedDatesAndHiddenArrows()}
+        {renderCalendarWithMultiDotMarking()}
+        {renderCalendarWithPeriodMarkingAndSpinner()}
+        {renderCalendarWithPeriodMarkingAndDotMarking()}
+        {renderCalendarWithMultiPeriodMarking()}
+        {renderCalendarWithCustomMarkingType()}
+      </Fragment>
+    );
+  };
+
   return (
-    <View style={styles.dayContainer}>
-      <Text style={styles.day}>{day.day}</Text>
-      <View style={[styles.eventIndicatorContainer, { opacity: hasEvents ? 1 : 0 }]}>
-        <View style={styles.eventIndicator} />
-      </View>
-    </View>
+    <ScrollView showsVerticalScrollIndicator={false} testID={testIDs.calendars.CONTAINER}>
+      {renderExamples()}
+    </ScrollView>
   );
 };
 
-  const createCalendar = async () => {
-    const defaultCalendarSource =
-      Platform.OS === 'ios'
-        ? await getDefaultCalendarSource()
-        : { isLocalAccount: true, name: 'Expo Calendar' };
-    const newCalendarID = await CalendarAPI.createCalendarAsync({
-      title: 'Expo Calendar',
-      color: 'blue',
-      entityType: CalendarAPI.EntityTypes.EVENT,
-      sourceId: defaultCalendarSource.id,
-      source: defaultCalendarSource,
-      name: 'internalCalendarName',
-      ownerAccount: 'personal',
-      accessLevel: CalendarAPI.CalendarAccessLevel.OWNER,
-    });
-    console.log(`Your new calendar ID is: ${newCalendarID}`);
-    fetchCalendars();
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Calendars</Text>
-      <View style={styles.calendarContainer}>
-        <CalendarList
-          onDayPress={handleDayPress}
-          markedDates={{ [selectedDay]: { selected: true, selectedColor: 'blue' } }}
-          renderDay={renderDay}
-        />
-      </View>
-      <View style={styles.eventContainer}>
-        <Text style={styles.eventHeader}>Events for {selectedDay}</Text>
-        {events[selectedDay]?.map((event) => (
-          <Text key={event.id} style={styles.event}>
-            {event.title}
-          </Text>
-        ))}
-      </View>
-      <Button title="Create a new calendar" onPress={createCalendar} />
-    </View>
-  );
-}
-
-async function getDefaultCalendarSource() {
-  const defaultCalendar = await CalendarAPI.getDefaultCalendarAsync();
-  return defaultCalendar.source;
-}
+export default CalendarScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
+  calendar: {
+    marginBottom: 10
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    margin: 10,
+    alignItems: 'center'
+  },
+  switchText: {
+    margin: 10,
+    fontSize: 16
+  },
+  text: {
+    textAlign: 'center',
+    padding: 10,
+    backgroundColor: 'lightgrey',
+    fontSize: 16
+  },
+  disabledText: {
+    color: 'grey'
+  },
+  defaultText: {
+    color: 'purple'
+  },
+  customCalendar: {
+    height: 250,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey'
+  },
+  customDay: {
+    textAlign: 'center'
+  },
+  customHeader: {
+    backgroundColor: '#FCC',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginHorizontal: -4,
+    padding: 8
+  },
+  customTitleContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    padding: 10
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  calendarContainer: {
-    flex: 1,
-    width: '100%',
-  },
-  eventContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  eventHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  event: {
+  customTitle: {
     fontSize: 16,
-    marginBottom: 5,
-  },
-
-   dayContainer: {
-    alignItems: 'center',
-  },
-  day: {
-    fontSize: 18,
-    marginBottom: 5,
-  },
-  eventIndicatorContainer: {
-    position: 'absolute',
-    bottom: 5,
-    alignItems: 'center',
-  },
-  eventIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'red',
-    marginTop: 2,
-  },
+    fontWeight: 'bold',
+    color: '#00BBF2'
+  }
 });

@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, tabBarStyles } from './styles'; 
 
 import HomeScreen from './screens/HomeScreen';
-import CalendarScreen from './screens/CalendarScreen';
+import StoredItineraryScreen from './screens/StoredItineraryScreen';
+
 import ItineraryScreen from './screens/ItineraryScreen';
 import SettingStack from './SettingsStack/SettingsStack';
 
@@ -21,8 +22,8 @@ const App = () => {
             let iconName;
             if (route.name === 'Home') {
               iconName = 'home';
-            } else if (route.name === 'Calendar') {
-              iconName = 'calendar';
+            } else if (route.name === 'StoredItineraryScreen') {
+              iconName = 'heart-circle-outline';
             } else if (route.name === 'Itinerary') {
               iconName = 'add-circle-outline';
             } else if (route.name === 'Setting') {
@@ -40,7 +41,7 @@ const App = () => {
       >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Itinerary" component={ItineraryScreen} />
-        <Tab.Screen name="Calendar" component={CalendarScreen} />
+        <Tab.Screen name="StoredItineraryScreen" component={StoredItineraryScreen} />
         <Tab.Screen name="Setting" component={SettingStack} />
       </Tab.Navigator>
     </NavigationContainer>
