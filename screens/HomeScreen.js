@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text,TouchableOpacity, FlatList,TextInput,Button, Image } from 'react-native';
-
+import userImage from '../user.png';
 
 const HomeScreen = ({ navigation }) => {
   const [search, setSearch] = useState('');
@@ -8,7 +8,7 @@ const HomeScreen = ({ navigation }) => {
   const [photos, setPhotos] = useState([]);
 
   const handleSearch = () => {
-    const filteredResults = states.filter(item =>
+    const filteredResults = locations.filter(item =>
       item.name.toLowerCase().includes(search.toLowerCase())
     );
     setSearchResults(filteredResults);
@@ -26,12 +26,15 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchPhotos();
-  }, []);
 
   return (
     <View style={styles.container}>
+      <View style={styles.nav}>
+        <Image
+              source={userImage}
+              style={styles.profileImage}
+        />
+      </View>
       <View style={styles.search}>
         <TextInput
           style={styles.textInput}
@@ -42,7 +45,8 @@ const HomeScreen = ({ navigation }) => {
           numberOfLines={3}
         />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-          <Text style={styles.buttonText}>Search</Text>
+          <Text style={{color: 'white',
+    fontWeight: 'bold'}}>Search</Text>
         </TouchableOpacity>
       </View>
       <FlatList
@@ -71,6 +75,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  nav: {
+    padding: 20,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    marginLeft:  300,    
+    borderRadius: 50,
+    marginBottom: 20,
+    borderColor: 'orange',
+    borderWidth: 2,
+  },
   photosContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -84,12 +100,8 @@ const styles = StyleSheet.create({
     margin: 5,
   },  
   search: {
-    padding: 50,
     width: 400,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-
   },
   textInput: {
     flex: 1,
@@ -102,15 +114,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   searchButton: {
-    backgroundColor: 'green',
+    backgroundColor: 'orange',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
   },  
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
   stateHeader: {
     justifyContent: 'center', 
     alignItems: 'center',
@@ -124,7 +132,7 @@ const styles = StyleSheet.create({
   
 });
 
-const states = [
+const locations = [
   { name: 'Alabama', abbreviation: 'AL' },
   { name: 'Alaska', abbreviation: 'AK' },
   { name: 'Arizona', abbreviation: 'AZ' },
