@@ -19,7 +19,7 @@ const CustomHeader = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flexDirection: 'row',  alignItems: 'center', paddingLeft: 350, top: 50, paddingBottom: 70}}>
+    <View style={{ flexDirection: 'row',  alignItems: 'center', paddingLeft: 10, top: 50, paddingBottom: 70}}>
       <TouchableOpacity onPress={navigateToCalendar}>
         <FontAwesome name="calendar" size={24} color="orange" style={{ marginRight: 16 }} />
       </TouchableOpacity>
@@ -43,7 +43,8 @@ const StoredItineraryStack = () => {
     <HomeStack.Navigator
       screenOptions={{
         header: ({ navigation }) => <CustomHeader navigation={navigation} />,
-        headerStyle: { backgroundColor: 'white' },
+        headerShown: true,
+        headerTransparent: true,
         headerTitle: '',
       }}
     >

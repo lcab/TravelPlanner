@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Switch, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
-import userImage from './user.png';
+import userImage from '../user.png';
 
 const Stack = createStackNavigator();
 

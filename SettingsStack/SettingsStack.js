@@ -11,8 +11,8 @@ const Stack = createStackNavigator();
 const SettingsStack  = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Settings" component={SettingScreen} />    
-      <Stack.Screen name="EditAccount" component={EditAccount} />
+      <Stack.Screen name="Settings" component={SettingScreen} options={{ headerShown: false }}/>    
+      <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }}/>
     </Stack.Navigator>
 
   );
