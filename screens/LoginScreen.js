@@ -1,9 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from '@firebase/auth';
+import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView } from 'react-native';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut , updateProfile} from '@firebase/auth';
+import { getStorage, ref, uploadBytes } from '@firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
+import userImage from '../user.png';
 import { screenStyles } from '../styles';
 
-const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
+const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirstName, lastName, setLastName, photo, setPhoto, isLogin, setIsLogin, handleAuthentication }) => {
+  const getImage = async () => {
+    const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      throw new Error('Permission to access media library was denied');
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+    
+    if (!result.cancelled) {
+      // Update selected image URI
+      setPhoto(result.assets[0].uri);
+    }
+    
+  };
+
   return (
     <View style={styles.authContainer}>
        <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
@@ -22,6 +45,32 @@ const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogi
         placeholder="Password"
         secureTextEntry
       />
+
+      {!isLogin && (
+        <>
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="First Name"
+          />
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Last Name"
+          />
+          {photo ? (
+            <View style={styles.photoContainer}>
+              <Image source={{ uri: photo }} style={styles.photo}/>
+              <Button title="Change Profile Picture" onPress={getImage} />
+            </View>
+            
+          ) : (
+            <Button title="Choose A Profile Picture (Click Here)" onPress={getImage} />
+          )}
+        </>
+      )}
       <View style={styles.buttonContainer}>
         <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="#3498db" />
       </View>
@@ -46,10 +95,13 @@ const AuthenticatedScreen = ({ user, handleAuthentication }) => {
   );
 };
 
-const ItineraryScreen = ({ app }) => {
+const LoginScreen = ({ app }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState(null); // Track user authentication state
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [photo, setPhoto] = useState(null);
+    const [user, setUser] = useState(null); 
     const [isLogin, setIsLogin] = useState(true);
   
     const auth = getAuth(app);
@@ -78,6 +130,24 @@ const ItineraryScreen = ({ app }) => {
             // Sign up
             await createUserWithEmailAndPassword(auth, email, password);
             console.log('User created successfully!');
+
+            console.log("IDKKKKKK");
+            console.log(user);
+
+            const displayName = `${firstName ? firstName : ''} ${lastName ? lastName : ''}`.trim() || ' ';
+            console.log(displayName);
+            const profileData = {
+              displayName: displayName 
+            };
+            console.log(profileData);
+
+            if (photo) {
+              profileData.photoURL = photo;
+            }else{
+              profileData.photoURL = 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/user.png?alt=media&token=81b20ef4-85e5-4bcc-8633-2bf818945661';
+            }
+
+            await updateProfile(auth.currentUser, profileData);
           }
         }
       } catch (error) {
@@ -97,6 +167,12 @@ const ItineraryScreen = ({ app }) => {
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
+            firstName={firstName}
+            setFirstName={setFirstName}
+            lastName={lastName}
+            setLastName={setLastName}
+            photo ={photo}
+            setPhoto = {setPhoto}
             isLogin={isLogin}
             setIsLogin={setIsLogin}
             handleAuthentication={handleAuthentication}
@@ -149,5 +225,15 @@ const styles = StyleSheet.create({
       textAlign: 'center',
       marginBottom: 20,
     },
+    photoContainer: {
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    photo: {
+      width: 200, 
+      height: 200, 
+      borderRadius: 100, 
+      marginBottom: 10,
+    },
   });
-export default ItineraryScreen;
+export default LoginScreen;

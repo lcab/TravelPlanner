@@ -5,18 +5,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { initializeApp } from '@firebase/app';
- 
-
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
 // All the screens
 import HomeScreen from './screens/HomeScreen';
 import StoredItineraryScreen from './screens/StoredItineraryScreen';
 import ItineraryScreen from './screens/ItineraryScreen';
 import SettingStack from './SettingsStack/SettingsStack';
 import LoginScreen from './screens/LoginScreen';
-import { getAuth, onAuthStateChanged } from '@firebase/auth';
 
-// Replace with firebase info of user
-import userImage from './user.png';
 
 
 const Tab = createBottomTabNavigator();
@@ -40,10 +36,12 @@ const UserProfile = ({ navigation , user}) => (
   <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 30}}>
     {user ? ( 
       <>
-        <Text>{user.email}</Text>
-          <Image
-            source={{ uri: user.photoURL }}
-            style={{ width: 50, height: 50, borderRadius: 25, marginRight: 20 }}
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text>{user.email}</Text> 
+        </TouchableOpacity>
+        <Image
+          source={{ uri: user.photoURL }}
+          style={{ width: 50, height: 50, borderRadius: 25, marginRight: 20 }}
         />
       </>
     ) : (
@@ -112,7 +110,7 @@ const BottomTabs = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Itinerary" component={ItineraryScreen} />
       <Tab.Screen name="StoredItineraryScreen" component={StoredItineraryScreen} />
-      <Tab.Screen name="Setting" component={SettingStack}/>
+      <Tab.Screen name="Setting" component={SettingStack} />
     </Tab.Navigator>
   );
 };

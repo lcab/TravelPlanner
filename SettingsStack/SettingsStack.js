@@ -8,10 +8,10 @@ import SettingScreen from './SettingScreen';
 
 const Stack = createStackNavigator();
 
-const SettingsStack  = () => {
+const SettingsStack  = ({ user }) => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Settings" component={SettingScreen} options={{ headerShown: false }}/>    
+      <Stack.Screen name="Settings" component={SettingScreen} options={{ headerShown: false }} initialParams={{ user: user }}/>    
       <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }}/>
     </Stack.Navigator>
 
