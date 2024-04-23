@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView } from 're
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut , updateProfile} from '@firebase/auth';
 import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
-import userImage from '../user.png';
+
 import { screenStyles } from '../styles';
 
 const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirstName, lastName, setLastName, photo, setPhoto, isLogin, setIsLogin, handleAuthentication }) => {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       padding: 16,
-      backgroundColor: '#f0f0f0',
+      backgroundImage: 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/LoginBackground.jpg?alt=media&token=a58dbe22-f4cb-4cf6-b506-3ceba720a996',
     },
     authContainer: {
       width: '80%',

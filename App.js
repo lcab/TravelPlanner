@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
+
 // All the screens
 import HomeScreen from './screens/HomeScreen';
 import StoredItineraryScreen from './screens/StoredItineraryScreen';
