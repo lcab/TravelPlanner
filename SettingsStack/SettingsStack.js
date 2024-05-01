@@ -11,8 +11,12 @@ const Stack = createStackNavigator();
 const SettingsStack  = ({ user }) => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Settings" component={SettingScreen} options={{ headerShown: false }} initialParams={{ user: user }}/>    
-      <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }}/>
+      <Stack.Screen name="Settings">
+        {(props) => <SettingScreen {...props} user={user} />}
+      </Stack.Screen>
+      <Stack.Screen name="EditAccount">
+        {(props) => <EditAccount {...props} user={user} />}
+      </Stack.Screen>
     </Stack.Navigator>
 
   );

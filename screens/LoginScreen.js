@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground  } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut , updateProfile} from '@firebase/auth';
-import { getStorage, ref, uploadBytes } from '@firebase/storage';
+//import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 
-import { screenStyles } from '../styles';
-
 const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirstName, lastName, setLastName, photo, setPhoto, isLogin, setIsLogin, handleAuthentication }) => {
-  const getImage = async () => {
+
+  const getProfilePic = async () => {
+
     const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
     if (status !== 'granted') {
-      throw new Error('Permission to access media library was denied');
-    }
+      throw new Error('Permission denied: No access to media');
+    };
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -20,148 +21,163 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
       quality: 1,
     });
     
-    if (!result.cancelled) {
-      // Update selected image URI
+    if (!result.canceled) {
       setPhoto(result.assets[0].uri);
-    }
-    
+    };
   };
 
   return (
-    <View style={styles.authContainer}>
-       <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-
-       <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        secureTextEntry
-      />
-
-      {!isLogin && (
-        <>
-          <TextInput
-            style={styles.input}
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="First Name"
-          />
-          <TextInput
-            style={styles.input}
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Last Name"
-          />
-          {photo ? (
-            <View style={styles.photoContainer}>
-              <Image source={{ uri: photo }} style={styles.photo}/>
-              <Button title="Change Profile Picture" onPress={getImage} />
-            </View>
-            
-          ) : (
-            <Button title="Choose A Profile Picture (Click Here)" onPress={getImage} />
-          )}
-        </>
-      )}
-      <View style={styles.buttonContainer}>
-        <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="#3498db" />
+    <ImageBackground source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/LoginBackground.jpg?alt=media&token=a58dbe22-f4cb-4cf6-b506-3ceba720a996' }} style={styles.backgroundContainer}>
+      <View style={styles.titleContainer} >
+        <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
       </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputBox}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          placeholderTextColor="darkorange" 
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.inputBox}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Password"
+          placeholderTextColor="darkorange" 
+          secureTextEntry
+        />
 
-      <View style={styles.bottomContainer}>
-        <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
-          {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
-        </Text>
+        {!isLogin && (
+          <>
+            <TextInput
+              style={styles.inputBox}
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="First Name"
+              placeholderTextColor="darkorange" 
+            />
+            <TextInput
+              style={styles.inputBox}
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Last Name"
+              placeholderTextColor="darkorange" 
+            />
+            {photo ? (
+              <View style={styles.photoContainer}>
+                <Image source={{ uri: photo }} style={styles.photo}/>
+                <Button title="Change Profile Picture" onPress={getProfilePic} style={styles.photoContainer}/>
+              </View>
+              
+            ) : (
+              <Button title="Choose A Profile Picture (Click Here)" onPress={getProfilePic}/>
+            )}
+          </>
+        )}
+        <View style={styles.buttonContainer}>
+          <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="white" />
+        </View>
+
+        <View style={styles.bottomContainer}>
+          <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
+            {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+          </Text>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
 
 const AuthenticatedScreen = ({ user, handleAuthentication }) => {
   return (
-    <View style={styles.authContainer}>
-      <Text style={styles.title}>Welcome</Text>
+    <View style={{ backgroundColor: 'orange' , width: '90%'}}>
+      <Text style={[styles.title, { paddingBottom: 30 }]}>Welcome</Text>
       <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Logout" onPress={handleAuthentication} color="#e74c3c" />
+      <Button title="Logout" onPress={handleAuthentication} color="yellow" />
     </View>
   );
 };
 
 const LoginScreen = ({ app }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [photo, setPhoto] = useState(null);
-    const [user, setUser] = useState(null); 
-    const [isLogin, setIsLogin] = useState(true);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [user, setUser] = useState(null); 
+  const [isLogin, setIsLogin] = useState(true);
   
-    const auth = getAuth(app);
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        setUser(user);
-      });
+  const auth = getAuth(app);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
   
-      return () => unsubscribe();
-    }, [auth]);
+    return () => unsubscribe();
+  }, [auth]);
   
     
-    const handleAuthentication = async () => {
-      try {
-        if (user) {
-          // If user is already authenticated, log out
-          console.log('User logged out successfully!');
-          await signOut(auth);
-        } else {
-          // Sign in or sign up
-          if (isLogin) {
-            // Sign in
-            await signInWithEmailAndPassword(auth, email, password);
-            console.log('User signed in successfully!');
-          } else {
-            // Sign up
-            await createUserWithEmailAndPassword(auth, email, password);
-            console.log('User created successfully!');
+  const handleAuthentication = async () => {
+    try {
+      if (user) {
+        await signOut(auth);
+      } else {
+        if (!/\S+@\S+\.\S+/.test(email)) {
+          alert("Please enter a valid email address.");
+          return;
+        } 
 
-            console.log("IDKKKKKK");
-            console.log(user);
-
-            const displayName = `${firstName ? firstName : ''} ${lastName ? lastName : ''}`.trim() || ' ';
-            console.log(displayName);
-            const profileData = {
-              displayName: displayName 
-            };
-            console.log(profileData);
-
-            if (photo) {
-              profileData.photoURL = photo;
-            }else{
-              profileData.photoURL = 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/user.png?alt=media&token=81b20ef4-85e5-4bcc-8633-2bf818945661';
-            }
-
-            await updateProfile(auth.currentUser, profileData);
-          }
+        if (!email || !password) {
+          alert("Please enter email and password.");
+          return;
         }
-      } catch (error) {
-        console.error('Authentication error:', error.message);
+
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters long.");
+          return;
+        }
+
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+
+          const displayName = `${firstName ? firstName : ''} ${lastName ? lastName : ''}`.trim() || ' ';
+
+          const profileData = {
+            displayName: displayName 
+          };
+
+          //If user pics picture eset as picture and if not use default picture
+          if (photo) {
+            profileData.photoURL = photo;
+          }else{
+            profileData.photoURL = 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/user.png?alt=media&token=81b20ef4-85e5-4bcc-8633-2bf818945661';
+          }
+
+          //update profile information
+          await updateProfile(auth.currentUser, profileData);
+        }
       }
-    };
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("The email address is already in use.");
+      } else {
+        throw error;
+      }
+    }
+  };
   
-    return (
-      <ScrollView contentContainerStyle={styles.container}>
+  return (
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         {user ? (
-          // Show user's email if user is authenticated
+            
           <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
         ) : (
-          // Show sign-in or sign-up form if user is not authenticated
+            
           <AuthScreen
             email={email}
             setEmail={setEmail}
@@ -179,59 +195,86 @@ const LoginScreen = ({ app }) => {
           />
         )}
       </ScrollView>
-    );
+  );
 }
 const styles = StyleSheet.create({
-    container: {
-      flexGrow: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 16,
-      backgroundImage: 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/LoginBackground.jpg?alt=media&token=a58dbe22-f4cb-4cf6-b506-3ceba720a996',
-    },
-    authContainer: {
-      width: '80%',
-      maxWidth: 400,
-      backgroundColor: '#fff',
-      padding: 16,
-      borderRadius: 8,
-      elevation: 3,
-    },
-    title: {
-      fontSize: 24,
-      marginBottom: 16,
-      textAlign: 'center',
-    },
-    input: {
-      height: 40,
-      borderColor: '#ddd',
-      borderWidth: 1,
-      marginBottom: 16,
-      padding: 8,
-      borderRadius: 4,
-    },
+  backgroundContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',    
+    width : '100%',
+    height: '100%',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  formConatiner: {
+    width: '80%',
+    maxWidth: 200,
+    padding: 16,
+    borderRadius: 8,
+    elevation: 3,
+  },  
+  formContainer : {
+    width: '80%',
+    maxWidth: 150,
+    padding: 16,
+    borderRadius: 8,
+    paddingBottom: 20,
+    paddingTop: 300,
+  },
+  title: {
+    fontSize: 30,
+    color: 'white',
+    textAlign: 'center',
+  },
+  inputContainer: {
+    paddingBottom: 400,
+    paddingTop: 20,
+  },
+  inputBox: {
+    height: 60,
+    borderColor: 'white',
+    borderWidth: 2,
+    borderRadius: 30,
+    marginBottom: 16,
+    padding: 8,
+    paddingTop: 20,
+    backgroundColor: 'white',
+  },
     buttonContainer: {
+      marginTop: 30,
       marginBottom: 16,
+      borderRadius: 8,
+      borderColor: 'darkorange',
+      backgroundColor: 'darkorange',
+      borderWidth: 8,
+      borderRadius: 30,
     },
     toggleText: {
-      color: '#3498db',
+      color: 'white',
       textAlign: 'center',
+      textDecorationLine: 'underline',
+      fontSize: 20,
     },
     bottomContainer: {
-      marginTop: 20,
+      fontSize: 30,
     },
     emailText: {
       fontSize: 18,
+      color: 'white',
       textAlign: 'center',
       marginBottom: 20,
     },
     photoContainer: {
       alignItems: 'center',
-      marginTop: 20,
+      marginTop: 20
     },
     photo: {
-      width: 200, 
-      height: 200, 
+      width: 100, 
+      height: 100, 
       borderRadius: 100, 
       marginBottom: 10,
     },

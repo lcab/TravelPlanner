@@ -14,8 +14,6 @@ import ItineraryScreen from './screens/ItineraryScreen';
 import SettingStack from './SettingsStack/SettingsStack';
 import LoginScreen from './screens/LoginScreen';
 
-
-
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -34,15 +32,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const UserProfile = ({ navigation , user}) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 30}}>
+  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20}}>
     {user ? ( 
       <>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text>{user.email}</Text> 
+          <Text style={{ marginRight: 10 }}>{user.email}</Text> 
         </TouchableOpacity>
         <Image
           source={{ uri: user.photoURL }}
-          style={{ width: 50, height: 50, borderRadius: 25, marginRight: 20 }}
+          style={{ width: 50, height: 50, borderRadius: 25 }}
         />
       </>
     ) : (
@@ -61,7 +59,7 @@ const App = () => {
       setUser(user);
     });
 
-  return unsubscribe;
+    return unsubscribe;
   }, []);
 
   return (
@@ -74,19 +72,21 @@ const App = () => {
       >
         <Stack.Screen
           name=" "
-          component={BottomTabs}
           options={({ navigation }) => ({
             headerRight: () => <UserProfile navigation={navigation} user={user} />,
-          }   
-          )}
-        />
+          })}
+        >
+
+          {(props) => <BottomTabs {...props} user={user} />}
+        </Stack.Screen>
         <Stack.Screen name="Login" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
-const BottomTabs = () => {
+const BottomTabs = ({ user }) => {
+  //console.log(user);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -111,7 +111,9 @@ const BottomTabs = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Itinerary" component={ItineraryScreen} />
       <Tab.Screen name="StoredItineraryScreen" component={StoredItineraryScreen} />
-      <Tab.Screen name="Setting" component={SettingStack} />
+      <Tab.Screen name="Setting">
+        {(props) => <SettingStack {...props} user={user} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

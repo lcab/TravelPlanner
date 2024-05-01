@@ -1,53 +1,52 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, Switch,  Image,TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Feather } from '@expo/vector-icons';
 import { screenStyles } from '../styles';
 
 const Stack = createStackNavigator();
 
 
 
-const EditAccount = ({ navigation }) => {
+const EditAccount = ({ navigation, user }) => {
+  console.log(user);
 
-
-  const [username, setUsername] = useState('currentUsername');
-  const [name, setName] = useState('Current Name');
-  const [email, setEmail] = useState('current@example.com');
+  const { displayName, email, photoURL } = user;
+  const [username, setUsername] = useState(email);
+  const [changeName, setChangeName] = useState(displayName ? displayName : '');
+  const [changeEmail, setChangeEmail] = useState(email);
   const [password, setPassword] = useState('');
 
 
   const handleSave = () => {
-    setUsername(username);
-    setName(name);
-    setEmail(email);
-    setPassword(password);
-    setNotificationsEnabled(notificationsEnabled);
 
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Edit User</Text>
-      <Text>Username</Text>
-      <TextInput
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-        editable={false}
-      />
+      <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
+        <Image
+          source={{ uri: photoURL }}
+          style={styles.profileImage}
+        />
+        <View style={styles.editIconContainer}>
+          <Feather name="edit" size={24} color="#cc5803" />
+        </View>react
+      </TouchableOpacity>
       <Text>Name</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
-        value={name}
-        onChangeText={setName}
+        value={changeName}
+        onChangeText={setChangeName}
       />
       <Text>Email</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={changeEmail}
+        onChangeText={setChangeEmail}
         keyboardType="email-address"
       />
       <Text>Password</Text>
@@ -82,7 +81,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
-  }
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+    borderColor: '#cc5803',
+    borderWidth: 2,
+  },
+  editIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 50,
+    backgroundColor: 'white',
+    padding: 5,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: '#cc5803',
+    transform: [{ translateX: -8 }, { translateY: -8 }],
+  },
 });
 
 export default EditAccount;
