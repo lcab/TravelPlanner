@@ -13,6 +13,7 @@ import StoredItineraryScreen from './screens/StoredItineraryScreen';
 import ItineraryScreen from './screens/ItineraryScreen';
 import SettingStack from './SettingsStack/SettingsStack';
 import LoginScreen from './screens/LoginScreen';
+import LocationInformation from './LocationInformation';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -80,6 +81,7 @@ const App = () => {
           {(props) => <BottomTabs {...props} user={user} />}
         </Stack.Screen>
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name ="LocationInformation" component={LocationInformation}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

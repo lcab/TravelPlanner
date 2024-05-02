@@ -1,77 +1,218 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text,TouchableOpacity, FlatList,TextInput,Button, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, Button, Image, ScrollView} from 'react-native';
 
-const HomeScreen = () => {
-    const [search, setSearch] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [photos, setPhotos] = useState([]);
+const locations = [
+  {
+    title: 'New York',
+    image: 'https://source.unsplash.com/random/300x300?new+york',
+    places: [
+      { name: '\n1. Central Park\n', 
+      description: 'A sprawling green oasis in the heart of Manhattan, offering a peaceful escape from the bustling city life.',
+      image: 'https://source.unsplash.com/random/300x300?central+park'},
+      { name: '\n2. Times Square\n', 
+      description: 'The iconic commercial and entertainment hub of NYC, known for its vibrant lights, Broadway theaters, and bustling crowds.', 
+      image: 'https://source.unsplash.com/random/300x300?times+square'},
+      { name: '\n3. Statue of Liberty\n', 
+      description: 'A symbol of freedom and democracy, located on Liberty Island in New York Harbor. Visitors can take ferry rides to the island and explore the statue up close.', 
+      image: 'https://source.unsplash.com/random/300x300?statue+liberty' }
+    ],
+    details: 'Explore the vibrant city of New York and discover its iconic landmarks.'
+  },
+  {
+    title: 'California',
+    image: 'https://source.unsplash.com/random/300x300?san+francisco',
+    places: [
+      { name: '\n1. Golden Gate Bridge\n', 
+      description: 'An iconic suspension bridge spanning the Golden Gate strait, connecting San Francisco to Marin County. It is one of the most photographed landmarks in the world.', 
+      image: 'https://source.unsplash.com/random/300x300?golden+gate+bridge' },
+      { name: '\n2. Yosemite National Park\n', 
+      description: 'A UNESCO World Heritage Site known for its stunning granite cliffs, waterfalls, and diverse ecosystems. Visitors can enjoy hiking, rock climbing, and wildlife watching in the park.' , 
+      image: 'https://source.unsplash.com/random/300x300?yosemite+national+park'},
+      { name: '\n3. Disneyland\n', 
+      description: 'A world-famous theme park resort in Anaheim, California, featuring attractions, entertainment, and dining experiences inspired by Disney characters and stories.' , 
+      image: 'https://source.unsplash.com/random/300x300?disney+land'}
+    ],
+    details: 'Experience the beauty of California and visit its famous attractions.'
+  },
+  {
+    title: 'Florida',
+    image: 'https://source.unsplash.com/random/300x300?florida',
+    places: [
+      { name: '\n1. Walt Disney World\n', 
+      description: 'The world\'s most visited vacation resort, featuring four theme parks, two water parks, and various entertainment and dining options for visitors of all ages.' , 
+      image: 'https://source.unsplash.com/random/300x300?walt+disney+world'},
+      { name: '\n2. Universal Studios\n', 
+      description: 'A renowned film and television production studio that also operates as a theme park, offering immersive attractions and experiences based on popular movies and TV shows.' , 
+      image: 'https://source.unsplash.com/random/300x300?universal+studio'},
+      { name: '\n3. Miami Beach\n', 
+      description: 'A vibrant coastal city known for its beautiful beaches, Art Deco architecture, and lively nightlife. Visitors can enjoy sunbathing, water sports, and exploring the vibrant neighborhoods of South Beach and Wynwood.', 
+      image: 'https://source.unsplash.com/random/300x300?miami+beach' }
+    ],
+    details: 'Discover the excitement and beauty of Florida with its world-famous attractions and stunning beaches.'
+  },
+  {
+    title: 'Texas',
+    image: 'https://source.unsplash.com/random/300x300?texas',
+    places: [
+      { name: '\n1. The Alamo\n', 
+      description: 'A historic Spanish mission and fortress compound in San Antonio, Texas, known for its pivotal role in the Texas Revolution. Visitors can explore the site and learn about its rich history through exhibits and guided tours.' , 
+      image: 'https://source.unsplash.com/random/300x300?the+alamo'},
+      { name: '\n2. Space Center Houston\n', 
+      description: 'The official visitor center of NASA\'s Johnson Space Center, where visitors can learn about space exploration, view artifacts from space missions, and even meet astronauts.' , 
+      image: 'https://source.unsplash.com/random/300x300?space+center+houston'},
+      { name: '\n3. San Antonio River Walk\n', 
+      description: 'A picturesque urban waterway in San Antonio, lined with shops, restaurants, and attractions. Visitors can take boat tours, stroll along the riverwalk, and enjoy the vibrant atmosphere of this iconic destination.' , 
+      image: 'https://source.unsplash.com/random/300x300?san+antonio+river+walk'}
+    ],
+    details: 'Experience the diverse culture and history of Texas with its iconic landmarks and attractions.'
+  },
+  {
+    title: 'Colorado',
+    image: 'https://source.unsplash.com/random/300x300?colorado',
+    places: [
+      { name: '\n1. Rocky Mountain National Park\n', 
+      description: 'A breathtaking national park renowned for its towering peaks, alpine lakes, and diverse ecosystems. Visitors can enjoy hiking, wildlife viewing, and scenic drives amidst stunning natural beauty.' , 
+      image: 'https://source.unsplash.com/random/300x300?rocky+mountain+national+park'},
+      { name: '\n2. Garden of the Gods\n', 
+      description: 'A unique geological formation featuring towering sandstone rock formations against a backdrop of snow-capped mountains. Visitors can explore hiking trails, rock climb, and marvel at the striking landscape.' , 
+      image: 'https://source.unsplash.com/random/300x300?garden+gods'},
+      { name: '\n3. Mesa Verde National Park\n', 
+      description: 'Home to ancient Pueblo cliff dwellings and archaeological sites, Mesa Verde National Park offers a fascinating glimpse into the lives of indigenous peoples who inhabited the region over a thousand years ago.' , 
+      image: 'https://source.unsplash.com/random/300x300?mesa+verde+national+park'}
+    ],
+    details: 'Embark on an adventure in Colorado and discover its majestic mountains, vibrant landscapes, and rich cultural heritage.'
+  },
+  {
+    title: 'Washington',
+    image: 'https://source.unsplash.com/random/300x300?washington',
+    places: [
+      { name: '\n1. Mount Rainier National Park\n', 
+      description: 'An iconic national park dominated by the towering Mount Rainier, an active stratovolcano. Visitors can explore alpine meadows, hike scenic trails, and marvel at breathtaking views of glaciers and wildflowers.' , 
+      image: 'https://source.unsplash.com/random/300x300?mount+rainer+national+park'},
+      { name: '\n2. Pike Place Market\n', 
+      description: 'One of the oldest continuously operated public farmers\' markets in the United States, Pike Place Market is a bustling hub of activity offering fresh produce, artisanal goods, and seafood, as well as restaurants and unique shops.' , 
+      image: 'https://source.unsplash.com/random/300x300?pike+place+market]'},
+      { name: '\n3. Space Needle\n\n', 
+      description: 'An iconic landmark of Seattle, the Space Needle offers panoramic views of the city skyline, Puget Sound, and surrounding mountains from its observation deck. Visitors can also dine at the rotating SkyCity restaurant for a unique dining experience.' , 
+      image: 'https://source.unsplash.com/random/300x300?space+needle'}
+    ],
+    details: 'Explore the natural wonders and urban delights of Washington state, from majestic mountains to vibrant cities.'
+  },
+  {
+    title: 'Arizona',
+    image: 'https://source.unsplash.com/random/300x300?arizona',
+    places: [
+      { name: '\n1. Grand Canyon National Park\n', 
+      description: 'One of the most iconic natural wonders of the world, the Grand Canyon is a breathtaking geological formation carved by the Colorado River over millions of years. Visitors can explore the canyon rim, hike trails, and marvel at the stunning vistas.' , 
+      image: 'https://source.unsplash.com/random/300x300?grand+canyon+national+park'},
+      { name: '\n2. Sedona\n', 
+      description: 'Famous for its red rock formations and spiritual energy, Sedona offers stunning landscapes, vibrant art galleries, and a range of outdoor activities such as hiking, mountain biking, and jeep tours amidst the stunning red rock scenery.' , 
+      image: 'https://source.unsplash.com/random/300x300?sedona+arizona'},
+      { name: '\n3. Horseshoe Bend\n', 
+      description: 'A dramatic horseshoe-shaped bend in the Colorado River near the town of Page, Horseshoe Bend offers awe-inspiring views of the meandering river and steep canyon walls. Visitors can hike to the overlook for panoramic vistas and stunning photo opportunities.', 
+      image: 'https://source.unsplash.com/random/300x300?horsehoe+bend+arizona' }
+    ],
+    details: 'Discover the beauty and wonder of Arizona, from the majestic Grand Canyon to the mystical red rocks of Sedona.'
+  },
+  {
+    title: 'Nevada',
+    image: 'https://source.unsplash.com/random/300x300?nevada',
+    places: [
+      { name: '\n1. Las Vegas Strip\n', 
+      description: 'The iconic Las Vegas Strip is known for its dazzling array of resorts, casinos, and entertainment venues. Visitors can explore themed hotels, enjoy world-class dining, and experience thrilling nightlife and entertainment options.', 
+      image: 'https://source.unsplash.com/random/300x300?las+vegas+strip' },
+      { name: '\n2. Hoover Dam\n', 
+      description: 'An engineering marvel and a symbol of human ingenuity, the Hoover Dam stands as a testament to America\'s ability to tame mighty rivers. Visitors can take guided tours to learn about the dam\'s history, construction, and significance.', 
+      image: 'https://source.unsplash.com/random/300x300?hoover+dam' },
+      { name: '\n3. Red Rock Canyon National Conservation Area\n', 
+      description: 'Located just outside of Las Vegas, Red Rock Canyon offers stunning desert landscapes, towering red sandstone formations, and scenic hiking trails. Visitors can enjoy outdoor activities such as hiking, rock climbing, and wildlife viewing amidst the rugged beauty of the Mojave Desert.' , 
+      image: 'https://source.unsplash.com/random/300x300?red+rock+canyon+national+conservation+area'}
+    ],
+    details: 'Experience the excitement and natural beauty of Nevada, from the glitz and glamour of Las Vegas to the rugged landscapes of Red Rock Canyon.'
+  },
+];
 
-    const userSearches = () => {
+const HomeScreen = ({ navigation }) => {
+  const navigateToInfo = (location) => {
+    navigation.navigate('LocationInformation', { location });
+  };
 
-        const results = locations.filter(item =>
-            item.name.toLowerCase().includes(search.toLowerCase())
-        );
-
-        setSearchResults(results);
-        fetchPhotos();
-    };
-
-    //Use Api
-    const fetchPhotos = async () => {
-        try {
-            const response = await fetch(`https://api.unsplash.com/search/photos?query=${search}&per_page=1&client_id=KcFupZlqSBB_5vl-Xdo-O63VJZnnDMtoqJAdPHqZ9JM`);
-            const data = await response.json();
-            setPhotos(data.results.map(photo => photo.urls.regular));
-        } catch (error) {
-            console.error('Error fetching photos:', error);
-        }
-    };
-
-
-    return (
-        <View style={styles.container}>
-
-        <View style={styles.search}>
-            <TextInput
-            style={styles.textInput}
-            onChangeText={text => setSearch(text)}
-            value={search}
-            placeholder="Search For A US State..."
-            multiline={true}
-            numberOfLines={3}
-            />
-            <TouchableOpacity style={styles.searchButton} onPress={userSearches}>
-            <Text style={{color: 'white',
-        fontWeight: 'bold'}}>Search</Text>
-            </TouchableOpacity>
-        </View>
-        <FlatList
-            contentContainerStyle={styles.stateHeaderContainer}    
-            data={searchResults}
-            renderItem={({ item }) => 
-            <Text style={styles.stateHeader}> {item.name} ({item.abbreviation})</Text>}
-            keyExtractor={(item, index) => index.toString()}
-        />
-        <View style={styles.photosContainer}>
-            {photos.map((photo, index) => (
-            <Image
-                key={index}
-                source={{ uri: photo }}
-                style={styles.photo}
-            />
-            ))}
-            </View>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Locations</Text>
+      <Text style={styles.subtitle}>Top 10 States To Visit</Text>
+      <ScrollView contentContainerStyle={styles.locationContainer}>
+        {locations.map((location, index) => (
+          <View key={location.title} style={[styles.locationItem, index >= locations.length - 2 && styles.lastLocationItem]}>
+            <Image source={{ uri: location.image }} style={styles.image} />
+            <Text style={styles.locationTitle}>{location.title}</Text>
+            <Text style={styles.locationDescription}>{location.places.map(place => place.name).join(' ')}</Text>
+            <Button title="View Details" onPress={() => navigateToInfo(location)} />
+            <View style={styles.separator} />
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        paddingTop: 100,
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'top',
+        paddingTop: 50,
     },
+    title: {
+        marginTop: 60,
+        marginBottom: 15,
+        fontSize: 40,
+        color: 'black',
+        paddingHorizontal: 15,
+        borderWidth: 4,
+        borderColor: 'darkorange',
+        fontWeight: 'bold',
+        borderRadius: 20,
+    },
+    subtitle: {
+        fontSize: 20,
+        marginBottom: 10,
+    },
+    locationContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        paddingVertical: 20,
+    },
+    locationItem: {
+        width: '45%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    lastLocationItem: {
+        marginBottom: 150, 
+    },
+    image: {
+        width: '100%',
+        height: 150,
+        borderRadius: 10,
+        marginBottom: 10,
+      },
+      locationTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+      },
+      separator: {
+        height: 3,
+        backgroundColor: 'gray',
+        width: '100%',
+        marginBottom: 10,
+        marginTop: 20,
+      },
     nav: {
-        padding: 20,
+        padding: 10,
     },
     photosContainer: {
         flexDirection: 'row',
@@ -122,57 +263,5 @@ const styles = StyleSheet.create({
   
 });
 
-const locations = [
-    { name: 'Alabama', abbreviation: 'AL' },
-    { name: 'Alaska', abbreviation: 'AK' },
-    { name: 'Arizona', abbreviation: 'AZ' },
-    { name: 'Arkansas', abbreviation: 'AR' },
-    { name: 'California', abbreviation: 'CA' },
-    { name: 'Colorado', abbreviation: 'CO' },
-    { name: 'Connecticut', abbreviation: 'CT' },
-    { name: 'Delaware', abbreviation: 'DE' },
-    { name: 'Florida', abbreviation: 'FL' },
-    { name: 'Georgia', abbreviation: 'GA' },
-    { name: 'Hawaii', abbreviation: 'HI' },
-    { name: 'Idaho', abbreviation: 'ID' },
-    { name: 'Illinois', abbreviation: 'IL' },
-    { name: 'Indiana', abbreviation: 'IN' },
-    { name: 'Iowa', abbreviation: 'IA' },
-    { name: 'Kansas', abbreviation: 'KS' },
-    { name: 'Kentucky', abbreviation: 'KY' },
-    { name: 'Louisiana', abbreviation: 'LA' },
-    { name: 'Maine', abbreviation: 'ME' },
-    { name: 'Maryland', abbreviation: 'MD' },
-    { name: 'Massachusetts', abbreviation: 'MA' },
-    { name: 'Michigan', abbreviation: 'MI' },
-    { name: 'Minnesota', abbreviation: 'MN' },
-    { name: 'Mississippi', abbreviation: 'MS' },
-    { name: 'Missouri', abbreviation: 'MO' },
-    { name: 'Montana', abbreviation: 'MT' },
-    { name: 'Nebraska', abbreviation: 'NE' },
-    { name: 'Nevada', abbreviation: 'NV' },
-    { name: 'New Hampshire', abbreviation: 'NH' },
-    { name: 'New Jersey', abbreviation: 'NJ' },
-    { name: 'New Mexico', abbreviation: 'NM' },
-    { name: 'New York', abbreviation: 'NY' },
-    { name: 'North Carolina', abbreviation: 'NC' },
-    { name: 'North Dakota', abbreviation: 'ND' },
-    { name: 'Ohio', abbreviation: 'OH' },
-    { name: 'Oklahoma', abbreviation: 'OK' },
-    { name: 'Oregon', abbreviation: 'OR' },
-    { name: 'Pennsylvania', abbreviation: 'PA' },
-    { name: 'Rhode Island', abbreviation: 'RI' },
-    { name: 'South Carolina', abbreviation: 'SC' },
-    { name: 'South Dakota', abbreviation: 'SD' },
-    { name: 'Tennessee', abbreviation: 'TN' },
-    { name: 'Texas', abbreviation: 'TX' },
-    { name: 'Utah', abbreviation: 'UT' },
-    { name: 'Vermont', abbreviation: 'VT' },
-    { name: 'Virginia', abbreviation: 'VA' },
-    { name: 'Washington', abbreviation: 'WA' },
-    { name: 'West Virginia', abbreviation: 'WV' },
-    { name: 'Wisconsin', abbreviation: 'WI' },
-    { name: 'Wyoming', abbreviation: 'WY' }
-];
 
 export default HomeScreen;
