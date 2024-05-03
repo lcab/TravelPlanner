@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 const EditAccount = ({ navigation, user }) => {
   console.log(user);
 
-  const { uid, displayName, email, photoURL } = user; 
+  const { uid, displayName, email, photoURL } = user;
   const [username, setUsername] = useState(email);
   const [changeName, setChangeName] = useState(displayName ? displayName : '');
   const [changeEmail, setChangeEmail] = useState(email);
@@ -31,7 +31,7 @@ const EditAccount = ({ navigation, user }) => {
         await auth.currentUser.updateEmail(changeEmail);
       }
 
-      
+
       alert('User profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error.message);

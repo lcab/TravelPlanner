@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView , Image} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { getDatabase, ref, onValue } from "firebase/database";
 
@@ -30,7 +30,7 @@ const CustomHeader = ({ navigation }) => {
   );
 }
 
-const StoredItineraryScreen = ({  navigation, route }) => {
+const StoredItineraryScreen = ({ navigation, route }) => {
 
   const [selectedDates, setSelectedDates] = useState({});
   const [heartedPlaces, setHeartedPlaces] = useState([]);

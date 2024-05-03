@@ -21,34 +21,34 @@ const SettingsScreen = ({ navigation, user }) => {
 
   const { displayName, photoURL } = user;
 
-  const [firstName, lastName] = displayName && displayName.split(' '); 
+  const [firstName, lastName] = displayName && displayName.split(' ');
 
-  
+
   return (
     <View style={styles.container}>
-          <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
-            <Image
-              source={{ uri: photoURL }}
-              style={styles.profileImage}
-            />
-            <View style={styles.editIconContainer}>
-              <Feather name="edit" size={24} color="#cc5803" />
-            </View>
-          </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
+        <Image
+          source={{ uri: photoURL }}
+          style={styles.profileImage}
+        />
+        <View style={styles.editIconContainer}>
+          <Feather name="edit" size={24} color="#cc5803" />
+        </View>
+      </TouchableOpacity>
 
-          <Text style={styles.name}>{firstName}</Text>
-          <Text style={styles.name}>{lastName}</Text>
+      <Text style={styles.name}>{firstName}</Text>
+      <Text style={styles.name}>{lastName}</Text>
 
-          <View style={styles.switchContainer}>
-            <Text>Enable Dark Mode</Text>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={(value) => setNotificationsEnabled(value)}
-            />
-          </View>
-          <View style={styles.switchContainer}>
-            <Text>Enable Dark Mode</Text>
-          </View>
+      <View style={styles.switchContainer}>
+        <Text>Enable Dark Mode</Text>
+        <Switch
+          value={notificationsEnabled}
+          onValueChange={(value) => setNotificationsEnabled(value)}
+        />
+      </View>
+      <View style={styles.switchContainer}>
+        <Text>Enable Dark Mode</Text>
+      </View>
     </View>
   );
 }
