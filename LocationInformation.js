@@ -1,32 +1,77 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { getDatabase, ref, set, push, onValue, remove } from "firebase/database";
+
 
 const LocationInformation = ({ route }) => {
+
   const { location } = route.params;
   const navigation = useNavigation();
 
   const [hearts, setHearts] = React.useState([]);
 
-  const addHeart = (place) => {
-    setHearts((prevHearts) => [...prevHearts, place]);
+  useEffect(() => {
+    const db = getDatabase();
+    const heartedPlacesRef = ref(db, 'locations');
+
+    onValue(heartedPlacesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const heartedPlaces = Object.values(data);
+        setHearts(heartedPlaces);
+      }
+    });
+  }, []);
+
+  const toggleHeart = (place) => {
+    if (isHearted(place)) {
+      removeHeart(place);
+    } else {
+      addHeart(place);
+    }
   };
 
-  const heartPlace = (place) => {
+
+  const addHeart = (place) => {
     if (hearts.length < 3) {
-      addHeart(place);
-      navigation.navigate('StoredItineraryScreen', { hearts: [...hearts, place] });
+      setHearts((prevHearts) => [...prevHearts, place]);
+      const db = getDatabase();
+      const heartedPlacesRef = ref(db, `locations/`);
+      const newHeartedPlaceRef = push(heartedPlacesRef);
+      const id = newHeartedPlaceRef.key;
+
+      set(newHeartedPlaceRef, {
+        description: place.description,
+        image: place.image,
+        name: place.name,
+        isHearted: true,
+        id: id
+      });
     } else {
       Alert.alert('Max hearts reached', 'You can only heart 3 places.');
     }
+  };
 
-
+  const removeHeart = (place) => {
+    const placeRef = hearts.find((heartedPlace) => heartedPlace.name === place.name);
+    if (placeRef && placeRef.id) {
+      const db = getDatabase();
+      const heartedPlacesRef = ref(db, `locations/${placeRef.id}`);
+      remove(heartedPlacesRef)
+        .then(() => {
+          setHearts(hearts.filter((heartedPlace) => heartedPlace.id !== placeRef.id));
+        })
+        .catch((error) => {
+          console.error("Error removing heart: ", error);
+        });
+    }
   };
 
   const isHearted = (place) => {
     return place && hearts.some((heartedPlace) => heartedPlace.name === place.name);
-  };  
+  };
 
   return (
     <View style={styles.container}>
@@ -46,13 +91,13 @@ const LocationInformation = ({ route }) => {
               <Text style={styles.placeName}>{place.name}</Text>
               <Text style={styles.placeDescription}>{place.description}</Text>
             </View>
-            <TouchableOpacity onPress={() => heartPlace(place)}>
-            <Ionicons
-  name={isHearted(place) ? 'heart' : 'heart-outline'}
-  size={24}
-  marginTop={-65}
-  color={isHearted(place) ? 'red' : 'white'}
-/>
+            <TouchableOpacity onPress={() => toggleHeart(place)}>
+              <Ionicons
+                name={isHearted(place) ? 'heart' : 'heart-outline'}
+                size={24}
+                marginTop={-65}
+                color={isHearted(place) ? 'red' : 'orange'}
+              />
             </TouchableOpacity>
           </View>
         ))}
@@ -64,7 +109,6 @@ const LocationInformation = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#ffa468',
   },
   header: {
     flexDirection: 'row',
@@ -76,7 +120,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   title: {
-    marginTop:100,
+    marginTop: 100,
     fontSize: 40,
     fontWeight: 'bold',
   },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
-import { useAuthState} from 'firebase/auth';
+import { useAuthState } from 'firebase/auth';
 
 
 const Stack = createStackNavigator();
@@ -10,42 +10,45 @@ const Stack = createStackNavigator();
 const SettingsScreen = ({ navigation, user }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-  // Render the screen only if user is authenticated
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>You are not logged in</Text>
+      </View>
+    );
+  }
 
   const { displayName, photoURL } = user;
-  const [firstName, lastName] = displayName && displayName.split(' ');
 
+  const [firstName, lastName] = displayName && displayName.split(' '); 
+
+  
   return (
     <View style={styles.container}>
-    {!user && (
-      <>
-        <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
-          <Image
-            source={{ uri: photoURL }}
-            style={styles.profileImage}
-          />
-          <View style={styles.editIconContainer}>
-            <Feather name="edit" size={24} color="#cc5803" />
+          <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
+            <Image
+              source={{ uri: photoURL }}
+              style={styles.profileImage}
+            />
+            <View style={styles.editIconContainer}>
+              <Feather name="edit" size={24} color="#cc5803" />
+            </View>
+          </TouchableOpacity>
+
+          <Text style={styles.name}>{firstName}</Text>
+          <Text style={styles.name}>{lastName}</Text>
+
+          <View style={styles.switchContainer}>
+            <Text>Enable Dark Mode</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={(value) => setNotificationsEnabled(value)}
+            />
           </View>
-        </TouchableOpacity>
-
-        <Text style={styles.name}>{firstName}</Text>
-        <Text style={styles.name}>{lastName}</Text>
-
-        <View style={styles.switchContainer}>
-          <Text>Enable Dark Mode</Text>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={(value) => setNotificationsEnabled(value)}
-          />
-        </View>
-    ) : (
-      <View style={styles.switchContainer}>
-          <Text>Enable Dark Mode</Text>
-        </View>
-    )
-    </>
-    )}
+          <View style={styles.switchContainer}>
+            <Text>Enable Dark Mode</Text>
+          </View>
     </View>
   );
 }

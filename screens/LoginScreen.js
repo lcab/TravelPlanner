@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground  } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut , updateProfile} from '@firebase/auth';
+import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from '@firebase/auth';
 //import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -8,7 +8,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
 
   const getProfilePic = async () => {
 
-    const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
       throw new Error('Permission denied: No access to media');
@@ -20,7 +20,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
       aspect: [1, 1],
       quality: 1,
     });
-    
+
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     };
@@ -37,7 +37,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
           value={email}
           onChangeText={setEmail}
           placeholder="Email"
-          placeholderTextColor="darkorange" 
+          placeholderTextColor="darkorange"
           autoCapitalize="none"
         />
         <TextInput
@@ -45,7 +45,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
           value={password}
           onChangeText={setPassword}
           placeholder="Password"
-          placeholderTextColor="darkorange" 
+          placeholderTextColor="darkorange"
           secureTextEntry
         />
 
@@ -56,23 +56,23 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
               value={firstName}
               onChangeText={setFirstName}
               placeholder="First Name"
-              placeholderTextColor="darkorange" 
+              placeholderTextColor="darkorange"
             />
             <TextInput
               style={styles.inputBox}
               value={lastName}
               onChangeText={setLastName}
               placeholder="Last Name"
-              placeholderTextColor="darkorange" 
+              placeholderTextColor="darkorange"
             />
             {photo ? (
               <View style={styles.photoContainer}>
-                <Image source={{ uri: photo }} style={styles.photo}/>
-                <Button title="Change Profile Picture" onPress={getProfilePic} style={styles.photoContainer}/>
+                <Image source={{ uri: photo }} style={styles.photo} />
+                <Button title="Change Profile Picture" onPress={getProfilePic} style={styles.photoContainer} />
               </View>
-              
+
             ) : (
-              <Button title="Choose A Profile Picture (Click Here)" onPress={getProfilePic}/>
+              <Button title="Choose A Profile Picture (Click Here)" onPress={getProfilePic} />
             )}
           </>
         )}
@@ -93,7 +93,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
 
 const AuthenticatedScreen = ({ user, handleAuthentication }) => {
   return (
-    <View style={{ backgroundColor: 'orange' , width: '90%'}}>
+    <View style={{ backgroundColor: 'orange', width: '90%' }}>
       <Text style={[styles.title, { paddingBottom: 30 }]}>Welcome</Text>
       <Text style={styles.emailText}>{user.email}</Text>
       <Button title="Logout" onPress={handleAuthentication} color="yellow" />
@@ -107,19 +107,19 @@ const LoginScreen = ({ app }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [photo, setPhoto] = useState(null);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
-  
+
   const auth = getAuth(app);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
-  
+
     return () => unsubscribe();
   }, [auth]);
-  
-    
+
+
   const handleAuthentication = async () => {
     try {
       if (user) {
@@ -128,7 +128,7 @@ const LoginScreen = ({ app }) => {
         if (!/\S+@\S+\.\S+/.test(email)) {
           alert("Please enter a valid email address.");
           return;
-        } 
+        }
 
         if (!email || !password) {
           alert("Please enter email and password.");
@@ -148,13 +148,13 @@ const LoginScreen = ({ app }) => {
           const displayName = `${firstName ? firstName : ''} ${lastName ? lastName : ''}`.trim() || ' ';
 
           const profileData = {
-            displayName: displayName 
+            displayName: displayName
           };
 
           //If user pics picture eset as picture and if not use default picture
           if (photo) {
             profileData.photoURL = photo;
-          }else{
+          } else {
             profileData.photoURL = 'https://firebasestorage.googleapis.com/v0/b/travel-planner-38453.appspot.com/o/user.png?alt=media&token=81b20ef4-85e5-4bcc-8633-2bf818945661';
           }
 
@@ -170,39 +170,39 @@ const LoginScreen = ({ app }) => {
       }
     }
   };
-  
+
   return (
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {user ? (
-            
-          <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
-        ) : (
-            
-          <AuthScreen
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            firstName={firstName}
-            setFirstName={setFirstName}
-            lastName={lastName}
-            setLastName={setLastName}
-            photo ={photo}
-            setPhoto = {setPhoto}
-            isLogin={isLogin}
-            setIsLogin={setIsLogin}
-            handleAuthentication={handleAuthentication}
-          />
-        )}
-      </ScrollView>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {user ? (
+
+        <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
+      ) : (
+
+        <AuthScreen
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          firstName={firstName}
+          setFirstName={setFirstName}
+          lastName={lastName}
+          setLastName={setLastName}
+          photo={photo}
+          setPhoto={setPhoto}
+          isLogin={isLogin}
+          setIsLogin={setIsLogin}
+          handleAuthentication={handleAuthentication}
+        />
+      )}
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
   backgroundContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',    
-    width : '100%',
+    alignItems: 'center',
+    width: '100%',
     height: '100%',
   },
   scrollContainer: {
@@ -216,8 +216,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     elevation: 3,
-  },  
-  formContainer : {
+  },
+  formContainer: {
     width: '80%',
     maxWidth: 150,
     padding: 16,
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
     textAlign: 'center',
+    paddingTop: 100,
   },
   inputContainer: {
     paddingBottom: 400,
@@ -244,39 +245,39 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: 'white',
   },
-    buttonContainer: {
-      marginTop: 30,
-      marginBottom: 16,
-      borderRadius: 8,
-      borderColor: 'darkorange',
-      backgroundColor: 'darkorange',
-      borderWidth: 8,
-      borderRadius: 30,
-    },
-    toggleText: {
-      color: 'white',
-      textAlign: 'center',
-      textDecorationLine: 'underline',
-      fontSize: 20,
-    },
-    bottomContainer: {
-      fontSize: 30,
-    },
-    emailText: {
-      fontSize: 18,
-      color: 'white',
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    photoContainer: {
-      alignItems: 'center',
-      marginTop: 20
-    },
-    photo: {
-      width: 100, 
-      height: 100, 
-      borderRadius: 100, 
-      marginBottom: 10,
-    },
-  });
+  buttonContainer: {
+    marginTop: 30,
+    marginBottom: 16,
+    borderRadius: 8,
+    borderColor: 'darkorange',
+    backgroundColor: 'darkorange',
+    borderWidth: 8,
+    borderRadius: 30,
+  },
+  toggleText: {
+    color: 'white',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+    fontSize: 20,
+  },
+  bottomContainer: {
+    fontSize: 30,
+  },
+  emailText: {
+    fontSize: 18,
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  photoContainer: {
+    alignItems: 'center',
+    marginTop: 20
+  },
+  photo: {
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+    marginBottom: 10,
+  },
+});
 export default LoginScreen;

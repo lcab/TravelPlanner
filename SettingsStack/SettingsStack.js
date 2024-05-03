@@ -8,7 +8,7 @@ import SettingScreen from './SettingScreen';
 
 const Stack = createStackNavigator();
 
-const SettingsStack  = ({ user }) => {
+const SettingsStack = ({ user }) => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Settings">

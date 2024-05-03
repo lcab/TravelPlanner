@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text,TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
+import { getDatabase, ref, set } from "firebase/database";
 
 // All the screens
 import HomeScreen from './screens/HomeScreen';
@@ -31,13 +32,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const database = getDatabase(app);
 
-const UserProfile = ({ navigation , user}) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20}}>
-    {user ? ( 
+const UserProfile = ({ navigation, user }) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20 }}>
+    {user ? (
       <>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={{ marginRight: 10 }}>{user.email}</Text> 
+          <Text style={{ marginRight: 10 }}>{user.email}</Text>
         </TouchableOpacity>
         <Image
           source={{ uri: user.photoURL }}
@@ -45,16 +47,16 @@ const UserProfile = ({ navigation , user}) => (
         />
       </>
     ) : (
-    <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-      <Text style={{ textDecorationLine: 'underline' }}>Log In</Text>
-    </TouchableOpacity>
-  )}
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={{ textDecorationLine: 'underline' }}>Log In</Text>
+      </TouchableOpacity>
+    )}
   </View>
 );
 
 const App = () => {
   const [user, setUser] = useState(null);
-    
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -69,7 +71,7 @@ const App = () => {
         screenOptions={{
           headerShown: true,
           headerTransparent: true,
-        }} 
+        }}
       >
         <Stack.Screen
           name=" "
@@ -81,7 +83,8 @@ const App = () => {
           {(props) => <BottomTabs {...props} user={user} />}
         </Stack.Screen>
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name ="LocationInformation" component={LocationInformation}/>
+        <Stack.Screen name="LocationInformation" component={LocationInformation} />
+        <Stack.Screen name="ItineraryScreen" component={ItineraryScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

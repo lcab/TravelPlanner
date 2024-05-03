@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Switch,  Image,TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Switch, Image, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
 import { screenStyles } from '../styles';
@@ -11,28 +11,45 @@ const Stack = createStackNavigator();
 const EditAccount = ({ navigation, user }) => {
   console.log(user);
 
-  const { displayName, email, photoURL } = user;
+  const { uid, displayName, email, photoURL } = user; 
   const [username, setUsername] = useState(email);
   const [changeName, setChangeName] = useState(displayName ? displayName : '');
   const [changeEmail, setChangeEmail] = useState(email);
   const [password, setPassword] = useState('');
 
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    try {
 
+      if (changeName !== displayName) {
+        await auth.currentUser.updateProfile({
+          displayName: changeName,
+        });
+      }
+
+      if (changeEmail !== email) {
+        await auth.currentUser.updateEmail(changeEmail);
+      }
+
+      
+      alert('User profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error.message);
+      alert('Error updating user profile. Please try again later.');
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Edit User</Text>
-      <TouchableOpacity onPress={() => navigation.navigate('EditAccount')}>
+      <TouchableOpacity>
         <Image
           source={{ uri: photoURL }}
           style={styles.profileImage}
         />
         <View style={styles.editIconContainer}>
           <Feather name="edit" size={24} color="#cc5803" />
-        </View>react
+        </View>
       </TouchableOpacity>
       <Text>Name</Text>
       <TextInput
@@ -57,7 +74,6 @@ const EditAccount = ({ navigation, user }) => {
         onChangeText={setPassword}
         secureTextEntry={true}
       />
-
       <Button title="Save" onPress={handleSave} />
     </View>
   );
