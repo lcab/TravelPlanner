@@ -210,6 +210,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'top',
     paddingTop: 50,
+    backgroundColor: 'lightyellow',
   },
   title: {
     marginTop: 60,

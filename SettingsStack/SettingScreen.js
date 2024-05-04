@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
-import { useAuthState } from 'firebase/auth';
 
 
 const Stack = createStackNavigator();
 
 const SettingsScreen = ({ navigation, user }) => {
+
+  console.log(user);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
 
@@ -40,7 +41,7 @@ const SettingsScreen = ({ navigation, user }) => {
       <Text style={styles.name}>{lastName}</Text>
 
       <View style={styles.switchContainer}>
-        <Text>Enable Dark Mode</Text>
+        <Text>Enable Notifications</Text>
         <Switch
           value={notificationsEnabled}
           onValueChange={(value) => setNotificationsEnabled(value)}
@@ -58,6 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'lightyellow',
   },
   profileImage: {
     width: 100,
@@ -89,7 +91,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   switchContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginBottom: 20,
   },
 });
 

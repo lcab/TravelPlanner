@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from '@firebase/auth';
 //import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -36,7 +36,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
           style={styles.inputBox}
           value={email}
           onChangeText={setEmail}
-          placeholder="Email"
+          placeholder="Email (*)"
           placeholderTextColor="darkorange"
           autoCapitalize="none"
         />
@@ -44,35 +44,40 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
           style={styles.inputBox}
           value={password}
           onChangeText={setPassword}
-          placeholder="Password"
+          placeholder="Password (*)"
           placeholderTextColor="darkorange"
           secureTextEntry
         />
-
         {!isLogin && (
           <>
             <TextInput
               style={styles.inputBox}
               value={firstName}
               onChangeText={setFirstName}
-              placeholder="First Name"
+              placeholder="First Name (*)"
               placeholderTextColor="darkorange"
             />
             <TextInput
               style={styles.inputBox}
               value={lastName}
               onChangeText={setLastName}
-              placeholder="Last Name"
+              placeholder="Last Name (*)"
               placeholderTextColor="darkorange"
             />
             {photo ? (
               <View style={styles.photoContainer}>
                 <Image source={{ uri: photo }} style={styles.photo} />
-                <Button title="Change Profile Picture" onPress={getProfilePic} style={styles.photoContainer} />
+                <TouchableOpacity onPress={getProfilePic}>
+                  <Text style={styles.buttonTitle}>Change Profile Picture (Click Here)</Text>
+                </TouchableOpacity>
               </View>
 
             ) : (
-              <Button title="Choose A Profile Picture (Click Here)" onPress={getProfilePic} />
+              <View style={styles.noSelectedPhoto}>
+              <TouchableOpacity onPress={getProfilePic}>
+                <Text style={styles.buttonTitle}>Choose A Profile Picture (Click Here)</Text>
+              </TouchableOpacity>
+              </View>
             )}
           </>
         )}
@@ -86,6 +91,16 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
           </Text>
         </View>
       </View>
+
+      {!isLogin && (
+        <>
+          <View style={styles.requirementsContainer}>
+            <Text style={styles.requirementTitle}>Requirements:</Text>
+            <Text style={styles.requirementText}>- Password must be at least 6 characters long</Text>
+            <Text style={styles.requirementText}>- (*) Indicates mandatory fields</Text>
+          </View>
+        </>
+      )}
     </ImageBackground>
   );
 }
@@ -137,6 +152,11 @@ const LoginScreen = ({ app }) => {
 
         if (password.length < 6) {
           alert("Password must be at least 6 characters long.");
+          return;
+        }
+
+        if (!isLogin && (!firstName || !lastName)) {
+          alert("Please enter both first name and last name.");
           return;
         }
 
@@ -271,13 +291,51 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
+    color: 'orange',
+  },
+  noSelectedPhoto:{
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonTitle: {
+    color: 'black',
   },
   photo: {
     width: 100,
     height: 100,
     borderRadius: 100,
     marginBottom: 10,
+  },
+  requirementText: {
+    color: 'grey',
+    fontSize: 16,
+    width: 200,
+    marginLeft: 50,
+    paddingRight: 20,
+    paddingTop: 10,
+
+  },
+  requirementTitle: {
+    color: 'orange',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    fontSize: 20,
+    width: 200,
+    marginLeft: 50,
+    paddingRight: 20,
+
+  },
+  requirementsContainer: {
+    backgroundColor: 'white',
+    width: 200,
+    height: 150,
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 200,
+    right: 0,
+    margin: 20,
+    padding: 10,
   },
 });
 export default LoginScreen;

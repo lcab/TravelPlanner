@@ -9,7 +9,6 @@ const Stack = createStackNavigator();
 
 
 const EditAccount = ({ navigation, user }) => {
-  console.log(user);
 
   const { uid, displayName, email, photoURL } = user;
   const [username, setUsername] = useState(email);
@@ -85,6 +84,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: 'lightyellow',
   },
   heading: {
     fontSize: 24,
