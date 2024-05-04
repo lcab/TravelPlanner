@@ -5,7 +5,7 @@ import { getDatabase, ref, onValue, remove } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
-import CalendarScreen from './CalendarScreen';
+import CalendarScreen from './CalendarScreen'; // Import the CalendarScreen component
 
 const HomeStack = createStackNavigator();
 
@@ -35,7 +35,6 @@ const StoredItineraryScreen = ({ navigation, route }) => {
   const [selectedStartDate, setSelectedStartDate] = useState({});
   const [selectedEndDate, setSelectedEndDate] = useState({});
   const [heartedPlaces, setHeartedPlaces] = useState([]);
-  const [openCalendarPlace, setOpenCalendarPlace] = useState(null);
 
   useEffect(() => {
     const db = getDatabase();
@@ -83,34 +82,7 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       </View>
     );
   }
-
-  const removeHeart = (place) => {
-    const placeRef = heartedPlaces.find((heartedPlace) => heartedPlace.name === place.name);
-    if (placeRef && placeRef.id) {
-      const db = getDatabase();
-      const heartedPlacesRef = ref(db, 'locations/' + placeRef.id);
-      remove(heartedPlacesRef)
-        .then(() => {
-          setHeartedPlaces(heartedPlaces.filter((heartedPlace) => heartedPlace.id !== placeRef.id));
-        })
-        .catch((error) => {
-          console.error("Error removing heart: ", error);
-        });
-    }
-  };
-
-  const isHearted = (place) => {
-    return place && heartedPlaces.some((heartedPlace) => heartedPlace.name === place.name);
-  };
-
-  const toggleHeart = (place) => {
-    if (isHearted(place)) {
-      removeHeart(place);
-    } else {
-      Alert.alert('Alert', 'You can only remove a heart from a place you have previously liked.');
-    }
-  };
-
+  console.log(heartedPlaces);
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container}>
@@ -175,6 +147,7 @@ const StoredItineraryScreen = ({ navigation, route }) => {
   );
 }
 
+
 const StoredItineraryStack = ({ route }) => {
   return (
     <HomeStack.Navigator
@@ -187,16 +160,17 @@ const StoredItineraryStack = ({ route }) => {
     >
       <HomeStack.Screen
         name="StoredItinerary"
-        component={(props) => <StoredItineraryScreen {...props} route={route} />}
-      />
+      >
+        {(props) => <StoredItineraryScreen {...props} route={route} />}
+      </HomeStack.Screen>
       <HomeStack.Screen
         name="Calendar"
         component={CalendarScreen}
       />
     </HomeStack.Navigator>
-
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -274,4 +248,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 export default StoredItineraryStack;
