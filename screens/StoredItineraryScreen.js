@@ -5,7 +5,7 @@ import { getDatabase, ref, onValue } from "firebase/database";
 
 import { FontAwesome } from '@expo/vector-icons';
 
-import CalendarScreen from './CalendarScreen';
+import CalendarScreen from './CalendarScreen'; // Import the CalendarScreen component
 
 const HomeStack = createStackNavigator();
 
@@ -32,8 +32,10 @@ const CustomHeader = ({ navigation }) => {
 
 const StoredItineraryScreen = ({ navigation, route }) => {
 
-  const [selectedDates, setSelectedDates] = useState({});
+  const [selectedStartDate, setSelectedStartDate] = useState({});
+  const [selectedEndDate, setSelectedEndDate] = useState({});
   const [heartedPlaces, setHeartedPlaces] = useState([]);
+  const [openCalendarPlace, setOpenCalendarPlace] = useState(null); // New state to track which place's calendar is open
 
   useEffect(() => {
     const db = getDatabase();
@@ -54,11 +56,20 @@ const StoredItineraryScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  const handleDateSelect = (placeName, date) => {
-    setSelectedDates(prevSelectedDates => ({
-      ...prevSelectedDates,
+  const handleStartDateSelect = (placeName, date) => {
+    setSelectedStartDate(prevSelectedStartDate => ({
+      ...prevSelectedStartDate,
       [placeName]: date,
     }));
+    setOpenCalendarPlace(null); // Close the calendar after selecting date
+  };
+
+  const handleEndDateSelect = (placeName, date) => {
+    setSelectedEndDate(prevSelectedEndDate => ({
+      ...prevSelectedEndDate,
+      [placeName]: date,
+    }));
+    setOpenCalendarPlace(null); // Close the calendar after selecting date
   };
 
   const navigateToItinerary = () => {
@@ -72,10 +83,9 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       </View>
     );
   }
-  console.log(heartedPlaces);
+
   return (
     <View style={styles.container}>
-
       <ScrollView style={styles.container}>
         <Text style={styles.title}>Stored Itinerary</Text>
         <Text style={styles.subtitle}>Hearted Places:</Text>
@@ -87,7 +97,36 @@ const StoredItineraryScreen = ({ navigation, route }) => {
                   <Text style={styles.placeText}>{place.name}</Text>
                   <FontAwesome name="heart" size={24} color="red" />
                   <Text style={styles.placeText}>{place.description}</Text>
-                  <Text style={styles.selectedDate}>Selected Dates: {selectedDates[place.name]}</Text>
+                  {openCalendarPlace === place.name && (
+                    <>
+                      <CalendarScreen
+                        placeName={place.name}
+                        onDateSelect={handleStartDateSelect}
+                      />
+                      <CalendarScreen
+                        placeName={place.name}
+                        onDateSelect={handleEndDateSelect}
+                      />
+                    </>
+                  )}
+                  {selectedStartDate[place.name] && (
+                    <Text style={styles.selectedDate}>Start Date: {selectedStartDate[place.name]}</Text>
+                  )}
+                  {selectedEndDate[place.name] && (
+                    <Text style={styles.selectedDate}>End Date: {selectedEndDate[place.name]}</Text>
+                  )}
+                  <TouchableOpacity
+                    style={styles.selectDateButton}
+                    onPress={() => setOpenCalendarPlace(openCalendarPlace === place.name ? null : place.name)}
+                  >
+                    <Text style={styles.selectDateButtonText}>Select Start Date</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.selectDateButton}
+                    onPress={() => setOpenCalendarPlace(openCalendarPlace === place.name ? null : place.name)}
+                  >
+                    <Text style={styles.selectDateButtonText}>Select End Date</Text>
+                  </TouchableOpacity>
                 </View>
                 <Image style={styles.placeImage} source={{ uri: place.image }} />
               </View>
@@ -102,6 +141,7 @@ const StoredItineraryScreen = ({ navigation, route }) => {
   );
 }
 
+
 const StoredItineraryStack = ({ route }) => {
   console.log(route);
   return (
@@ -115,16 +155,17 @@ const StoredItineraryStack = ({ route }) => {
     >
       <HomeStack.Screen
         name="StoredItinerary"
-        component={(props) => <StoredItineraryScreen {...props} route={route} />}
-      />
+      >
+        {(props) => <StoredItineraryScreen {...props} route={route} />}
+      </HomeStack.Screen>
       <HomeStack.Screen
         name="Calendar"
         component={CalendarScreen}
       />
     </HomeStack.Navigator>
-
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -189,5 +230,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
+  selectDateButton: {
+    backgroundColor: 'orange',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  selectDateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 });
+
 export default StoredItineraryStack;
