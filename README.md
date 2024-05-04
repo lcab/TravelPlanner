@@ -1,29 +1,50 @@
-This is a Group Project created by Lorena Cabrera and Andrea Coyotl
+# Welcome to our Group Project!
 
-Work divided:
-Home - Andrea
-Location Information: Andrea
-Login - Lorena
-storedItinerary - Andrea
-Settings - Lorena
-Styles - Lorena
+## Contributors:
+- Lorena Cabrera
+- Andrea Coyotl
 
-How to Use:
-1. install 'npm install'
-2. Go into repository and in the terminal write 'npx expo start
-3. Scan the QR code in the app
-4. You will land in the home page
+## Work Distribution:
+- Home: Andrea
+- Location Information: Andrea
+- Signin: Lorena
+- Signup: Lorena
+- Stored Itinerary: Andrea
+- Settings: Lorena
+- Styles: Lorena
 
-Pages Components:
-Home:
+## How to Use:
+1. Install dependencies: `npm install`
+2. Navigate to the repository directory and run: `npx expo start`
+3. Scan the QR code with the Expo Go app
+4. You will be directed to the home page
 
-Location Information:
+## Page Components:
 
+### Home:
+- Discover available travel destinations
+  - Note: Restricted to USA states
+- Click 'View Details' to explore location information
 
-Itinerary:
+### Location Information:
+- Explore detailed information about places and activities in each state
+- Like places to add them to your stored itinerary (Only available for registered users)
 
-StoredItineraryScreen:
+### Stored Itinerary Screen:
+- Access all liked places saved for future trips
 
-Setting:
+### Itinerary:
+- Plan your trips by adding travel dates and desired activities using your liked locations
 
-LogIn: 
+### Settings:
+- Edit your profile information
+- Change your name, email, password, and profile picture by clicking on the profile picture
+
+### Sign In:
+- Existing users can sign in using their email and password
+- New users can create an account by clicking 'Sign Up'
+
+### Sign Up:
+- Create a new account with a valid email, a password of 6 or more characters, and your first and last name
+- Choose a profile picture by clicking 'Choose a profile picture'
+- Requirements are displayed at the bottom of the page for guidance
