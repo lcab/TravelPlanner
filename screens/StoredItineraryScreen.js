@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
     backgroundColor: 'lightyellow',
+    
   },
   title: {
     marginTop: 30,
