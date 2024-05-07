@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { getDatabase, ref, onValue, remove } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
 import CalendarScreen from './CalendarScreen';
+import ItineraryScreen from './ItineraryScreen';
 
 const HomeStack = createStackNavigator();
 
@@ -31,11 +32,11 @@ const CustomHeader = ({ navigation }) => {
 }
 
 const StoredItineraryScreen = ({ navigation, route }) => {
-
   const [selectedStartDate, setSelectedStartDate] = useState({});
   const [selectedEndDate, setSelectedEndDate] = useState({});
   const [heartedPlaces, setHeartedPlaces] = useState([]);
-  const [openCalendarPlace, setOpenCalendarPlace] = useState(null);
+  const [openStartDateCalendar, setOpenStartDateCalendar] = useState(null);
+  const [openEndDateCalendar, setOpenEndDateCalendar] = useState(null);
 
   useEffect(() => {
     const db = getDatabase();
@@ -61,20 +62,17 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       ...prevSelectedStartDate,
       [placeName]: date,
     }));
-    setOpenCalendarPlace(null); // Close the calendar after selecting date
+    setOpenStartDateCalendar(null); 
   };
-
+  
   const handleEndDateSelect = (placeName, date) => {
     setSelectedEndDate(prevSelectedEndDate => ({
       ...prevSelectedEndDate,
       [placeName]: date,
     }));
-    setOpenCalendarPlace(null); // Close the calendar after selecting date
+    setOpenEndDateCalendar(null); 
   };
 
-  const navigateToItinerary = () => {
-    navigation.navigate('ItineraryScreen');
-  };
 
   if (heartedPlaces.length === 0) {
     return (
@@ -103,14 +101,6 @@ const StoredItineraryScreen = ({ navigation, route }) => {
     return place && heartedPlaces.some((heartedPlace) => heartedPlace.name === place.name);
   };
 
-  const toggleHeart = (place) => {
-    if (isHearted(place)) {
-      removeHeart(place);
-    } else {
-      Alert.alert('Alert', 'You can only remove a heart from a place you have previously liked.');
-    }
-  };
-
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container}>
@@ -122,18 +112,28 @@ const StoredItineraryScreen = ({ navigation, route }) => {
               <View style={styles.placeContent}>
                 <View style={styles.textContainer}>
                   <Text style={styles.placeText}>{place.name}</Text>
+                  <TouchableOpacity onPress={() => removeHeart(place)}>
+                    <Ionicons
+                      name={isHearted(place) ? 'heart' : 'heart-outline'}
+                      size={24}
+                      marginTop={-50}
+                      marginLeft={250}
+                      color={isHearted(place) ? 'red' : 'orange'}
+                    />
+                  </TouchableOpacity>
+                  <Image style={styles.placeImage} source={{ uri: place.image }} />
                   <Text style={styles.placeText}>{place.description}</Text>
-                  {openCalendarPlace === place.name && (
-                    <>
-                      <CalendarScreen
-                        placeName={place.name}
-                        onDateSelect={handleStartDateSelect}
-                      />
-                      <CalendarScreen
-                        placeName={place.name}
-                        onDateSelect={handleEndDateSelect}
-                      />
-                    </>
+                  {openStartDateCalendar === place.name && (
+                    <CalendarScreen
+                      placeName={place.name}
+                      onDateSelect={handleStartDateSelect}
+                    />
+                  )}
+                  {openEndDateCalendar === place.name && (
+                    <CalendarScreen
+                      placeName={place.name}
+                      onDateSelect={handleEndDateSelect}
+                    />
                   )}
                   {selectedStartDate[place.name] && (
                     <Text style={styles.selectedDate}>Start Date: {selectedStartDate[place.name]}</Text>
@@ -143,33 +143,28 @@ const StoredItineraryScreen = ({ navigation, route }) => {
                   )}
                   <TouchableOpacity
                     style={styles.selectDateButton}
-                    onPress={() => setOpenCalendarPlace(openCalendarPlace === place.name ? null : place.name)}
+                    onPress={() => setOpenStartDateCalendar(openStartDateCalendar === place.name? null : place.name)}
                   >
                     <Text style={styles.selectDateButtonText}>Select Start Date</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.selectDateButton}
-                    onPress={() => setOpenCalendarPlace(openCalendarPlace === place.name ? null : place.name)}
+                    onPress={() => setOpenEndDateCalendar(openEndDateCalendar === place.name? null : place.name)}
                   >
                     <Text style={styles.selectDateButtonText}>Select End Date</Text>
                   </TouchableOpacity>
-                </View>
-                <TouchableOpacity onPress={() => toggleHeart(place)}>
-                    <Ionicons
-                      name={isHearted(place) ? 'heart' : 'heart-outline'}
-                      size={24}
-                      marginTop={-65}
-                      color={isHearted(place) ? 'red' : 'orange'}
-                    />
+                  <TouchableOpacity
+                    style={styles.createPlanButton}
+                    onPress={() => navigation.navigate('ItineraryScreen', { place:place})}
+                  >
+                    <Text style={styles.createPlanButtonText}>Create Travel Plan</Text>
                   </TouchableOpacity>
-                <Image style={styles.placeImage} source={{ uri: place.image }} />
+                </View>
+                
               </View>
             </View>
           ))}
         </View>
-        <TouchableOpacity onPress={navigateToItinerary} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Create a Travel Plan Here</Text>
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -187,14 +182,23 @@ const StoredItineraryStack = ({ route }) => {
     >
       <HomeStack.Screen
         name="StoredItinerary"
-        component={(props) => <StoredItineraryScreen {...props} route={route} />}
+        component={StoredItineraryScreen}
+        initialParams={route.params}
       />
       <HomeStack.Screen
         name="Calendar"
         component={CalendarScreen}
       />
+      <HomeStack.Screen
+        name="ItineraryScreen"
+        component={ItineraryScreen}
+        options={({ route }) => ({ 
+          title: 'Itinerary', 
+          place: route.params.place,
+          numberOfDays: route.params.place.numberOfDays 
+        })}
+      />
     </HomeStack.Navigator>
-
   );
 }
 
@@ -207,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightyellow',
   },
   title: {
-    marginTop: 80,
+    marginTop: 30,
     fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -220,9 +224,7 @@ const styles = StyleSheet.create({
   placesContainer: {
     marginBottom: 20,
   },
-  placeContainer: {
-    marginBottom: 20,
-  },
+  
   placeContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -232,38 +234,41 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   placeText: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 5,
+    marginTop: 10,
   },
   placeImage: {
-    width: 100,
-    height: 100,
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
     marginBottom: 5,
   },
   selectedDate: {
-    fontSize: 14,
+    fontSize: 16,
     marginBottom: 5,
-    color: 'gray',
+    marginTop: 12,
+    color: '#ff6a06',
   },
   errorText: {
     fontSize: 18,
     textAlign: 'center',
     marginTop: 50,
   },
-  addButton: {
-    backgroundColor: 'orange',
+  createPlanButton: {
+    backgroundColor: '#ff9147',
     padding: 10,
     borderRadius: 5,
     marginTop: 20,
     alignItems: 'center',
+    marginBottom: 50,
   },
-  addButtonText: {
+  createPlanButtonText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 18,
   },
   selectDateButton: {
-    backgroundColor: 'orange',
+    backgroundColor: '#ffa05f',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
@@ -274,4 +279,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 export default StoredItineraryStack;
