@@ -72,6 +72,7 @@ const LocationInformation = ({ route }) => {
   const isHearted = (place) => {
     return place && hearts.some((heartedPlace) => heartedPlace.name === place.name);
   };
+  
 
   return (
     <View style={styles.container}>
@@ -109,6 +110,7 @@ const LocationInformation = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+    backgroundColor: "lightyellow",
   },
   header: {
     flexDirection: 'row',
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderBottomWidth: 3,
-    borderBottomColor: '#ddd',
+    borderBottomColor: 'black',
   },
   title: {
     marginTop: 100,
@@ -147,13 +149,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   placeName: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#f46200'
   },
   placeDescription: {
     fontSize: 14,
-    color: '#666',
+    color: 'black',
   },
 });
 
