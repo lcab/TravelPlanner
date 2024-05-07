@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, Switch, Image, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
+import { getAuth, updateProfile } from "firebase/auth";
+import * as ImagePicker from 'expo-image-picker';
 import { screenStyles } from '../styles';
 
 const Stack = createStackNavigator();
@@ -11,67 +13,66 @@ const Stack = createStackNavigator();
 const EditAccount = ({ navigation, user }) => {
 
   const { uid, displayName, email, photoURL } = user;
-  const [username, setUsername] = useState(email);
   const [changeName, setChangeName] = useState(displayName ? displayName : '');
-  const [changeEmail, setChangeEmail] = useState(email);
-  const [password, setPassword] = useState('');
+  const [newPhotoURL, setNewPhotoURL] = useState(null);
 
 
   const handleSave = async () => {
-    try {
 
-      if (changeName !== displayName) {
-        await auth.currentUser.updateProfile({
-          displayName: changeName,
-        });
-      }
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
 
-      if (changeEmail !== email) {
-        await auth.currentUser.updateEmail(changeEmail);
-      }
-
-
+    updateProfile(currentUser, {
+      displayName: changeName,
+      photoURL: newPhotoURL ? newPhotoURL : photoURL
+    }).then(() => {
       alert('User profile updated successfully!');
-    } catch (error) {
-      console.error('Error updating profile:', error.message);
+    }).catch((error) => {
       alert('Error updating user profile. Please try again later.');
-    }
+    });
+  };
+
+
+  const getProfilePic = async () => {
+
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== 'granted') {
+      throw new Error('Permission denied: No access to media');
+    };
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setNewPhotoURL(result.assets[0].uri);
+    };
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Edit User</Text>
-      <TouchableOpacity>
+      <Text style={styles.buttonTitle}>Change Profile Picture (Click Here)</Text>
+      <TouchableOpacity onPress={getProfilePic}>
         <Image
-          source={{ uri: photoURL }}
+          source={{ uri: newPhotoURL ? newPhotoURL : photoURL }}
           style={styles.profileImage}
+          
         />
         <View style={styles.editIconContainer}>
           <Feather name="edit" size={24} color="#cc5803" />
         </View>
       </TouchableOpacity>
-      <Text>Name</Text>
+      <Text>Change Name</Text>
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder=" Change Name"
         value={changeName}
         onChangeText={setChangeName}
-      />
-      <Text>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={changeEmail}
-        onChangeText={setChangeEmail}
-        keyboardType="email-address"
-      />
-      <Text>Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
       />
       <Button title="Save" onPress={handleSave} />
     </View>
@@ -116,6 +117,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cc5803',
     transform: [{ translateX: -8 }, { translateY: -8 }],
+  },
+  buttonTitle: {
+    color: 'black',
   },
 });
 

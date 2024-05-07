@@ -79,7 +79,6 @@ const App = () => {
             headerRight: () => <UserProfile navigation={navigation} user={user} />,
           })}
         >
-
           {(props) => <BottomTabs {...props} user={user} />}
         </Stack.Screen>
         <Stack.Screen name="Login" component={LoginScreen} />

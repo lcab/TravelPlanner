@@ -7,8 +7,6 @@ import { Feather } from '@expo/vector-icons';
 const Stack = createStackNavigator();
 
 const SettingsScreen = ({ navigation, user }) => {
-
-  console.log(user);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
 
@@ -20,7 +18,7 @@ const SettingsScreen = ({ navigation, user }) => {
     );
   }
 
-  const { displayName, photoURL } = user;
+  const { displayName = '', photoURL = '' } = user;
 
   const [firstName, lastName] = displayName && displayName.split(' ');
 
