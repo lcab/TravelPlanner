@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { getDatabase, ref, onValue, remove } from "firebase/database";
+import { getDatabase, ref, onValue, remove, update } from "firebase/database";
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -62,7 +62,8 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       ...prevSelectedStartDate,
       [placeName]: date,
     }));
-    setOpenStartDateCalendar(null); 
+    setOpenStartDateCalendar(null);
+    updateDatabase(placeName, 'startDate', date); 
   };
   
   const handleEndDateSelect = (placeName, date) => {
@@ -71,6 +72,20 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       [placeName]: date,
     }));
     setOpenEndDateCalendar(null); 
+    updateDatabase(placeName, 'endDate', date);
+  };
+
+  const updateDatabase = (placeName, key, value) => {
+    const db = getDatabase();
+    const placeRef = ref(db, `locations/${placeName.replace(/\s+/g, '')}`);
+  
+    update(placeRef, {
+      [key]: value
+    }).then(() => {
+      console.log('Database updated successfully');
+    }).catch((error) => {
+      console.error("Error updating database: ", error);
+    });
   };
 
 

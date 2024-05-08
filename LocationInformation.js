@@ -13,55 +13,67 @@ const LocationInformation = ({ route }) => {
   const [hearts, setHearts] = React.useState([]);
 
   useEffect(() => {
-    const db = getDatabase();
-    const heartedPlacesRef = ref(db, 'locations');
+    try {
+      const db = getDatabase();
+      const heartedPlacesRef = ref(db, 'locations');
 
-    onValue(heartedPlacesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const heartedPlaces = Object.values(data);
-        setHearts(heartedPlaces);
-      }
-    });
+      onValue(heartedPlacesRef, (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          const heartedPlaces = Object.values(data);
+          setHearts(heartedPlaces);
+        } else {
+          setHearts([]);
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   }, []);
 
   const toggleHeart = (place) => {
-    if (isHearted(place)) {
-      removeHeart(place);
-    } else {
-      addHeart(place);
+    try {
+      if (isHearted(place)) {
+        removeHeart(place);
+      } else {
+        addHeart(place);
+      }
+    } catch (error) {
+      console.error("Error toggling heart:", error);
     }
   };
 
 
   const addHeart = (place) => {
-    if (hearts.length < 3) {
-      setHearts((prevHearts) => [...prevHearts, place]);
-      const db = getDatabase();
-      const heartedPlacesRef = ref(db, `locations/`);
-      const newHeartedPlaceRef = push(heartedPlacesRef);
-      const id = newHeartedPlaceRef.key;
+    try {
+      if (hearts.length < 3) {
+        setHearts((prevHearts) => [...prevHearts, place]);
+        const db = getDatabase();
+        const heartedPlacesLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}`);
 
-      set(newHeartedPlaceRef, {
-        description: place.description,
-        image: place.image,
-        name: place.name,
-        isHearted: true,
-        id: id
-      });
-    } else {
-      Alert.alert('Max hearts reached', 'You can only heart 3 places.');
+        set(heartedPlacesLocation, {
+          description: place.description,
+          image: place.image,
+          name: place.name,
+          isHearted: true
+        });
+      } else {
+        Alert.alert('Max hearts reached', 'You can only heart 3 places.');
+      }
+    } catch (error) {
+      console.error("Error adding heart:", error);
     }
   };
 
   const removeHeart = (place) => {
     const placeRef = hearts.find((heartedPlace) => heartedPlace.name === place.name);
-    if (placeRef && placeRef.id) {
+    if (placeRef && placeRef.name) {
       const db = getDatabase();
-      const heartedPlacesRef = ref(db, `locations/${placeRef.id}`);
+      const heartedPlacesRef = ref(db, `locations/${placeRef.name.replace(/\s+/g, '')}`);
       remove(heartedPlacesRef)
         .then(() => {
-          setHearts(hearts.filter((heartedPlace) => heartedPlace.id !== placeRef.id));
+          setHearts(hearts.filter((heartedPlace) => heartedPlace.name !== placeRef.name));
         })
         .catch((error) => {
           console.error("Error removing heart: ", error);
@@ -72,7 +84,7 @@ const LocationInformation = ({ route }) => {
   const isHearted = (place) => {
     return place && hearts.some((heartedPlace) => heartedPlace.name === place.name);
   };
-  
+
 
   return (
     <View style={styles.container}>

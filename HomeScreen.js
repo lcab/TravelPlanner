@@ -182,7 +182,11 @@ const locations = [
 
 const HomeScreen = ({ navigation }) => {
   const navigateToInfo = (location) => {
-    navigation.navigate('LocationInformation', { location, locationId: location.id });
+    try {
+      navigation.navigate('LocationInformation', { location, locationId: location.id });
+    } catch (error) {
+      console.error("Error navigating to location information:", error);
+    }
   };
 
   return (
