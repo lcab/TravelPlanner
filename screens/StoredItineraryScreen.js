@@ -63,22 +63,22 @@ const StoredItineraryScreen = ({ navigation, route }) => {
       [placeName]: date,
     }));
     setOpenStartDateCalendar(null);
-    updateDatabase(placeName, 'startDate', date); 
+    updateDatabase(placeName, 'startDate', date);
   };
-  
+
   const handleEndDateSelect = (placeName, date) => {
     setSelectedEndDate(prevSelectedEndDate => ({
       ...prevSelectedEndDate,
       [placeName]: date,
     }));
-    setOpenEndDateCalendar(null); 
+    setOpenEndDateCalendar(null);
     updateDatabase(placeName, 'endDate', date);
   };
 
   const updateDatabase = (placeName, key, value) => {
     const db = getDatabase();
     const placeRef = ref(db, `locations/${placeName.replace(/\s+/g, '')}`);
-  
+
     update(placeRef, {
       [key]: value
     }).then(() => {
@@ -158,24 +158,24 @@ const StoredItineraryScreen = ({ navigation, route }) => {
                   )}
                   <TouchableOpacity
                     style={styles.selectDateButton}
-                    onPress={() => setOpenStartDateCalendar(openStartDateCalendar === place.name? null : place.name)}
+                    onPress={() => setOpenStartDateCalendar(openStartDateCalendar === place.name ? null : place.name)}
                   >
                     <Text style={styles.selectDateButtonText}>Select Start Date</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.selectDateButton}
-                    onPress={() => setOpenEndDateCalendar(openEndDateCalendar === place.name? null : place.name)}
+                    onPress={() => setOpenEndDateCalendar(openEndDateCalendar === place.name ? null : place.name)}
                   >
                     <Text style={styles.selectDateButtonText}>Select End Date</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.createPlanButton}
-                    onPress={() => navigation.navigate('ItineraryScreen', { place:place})}
+                    onPress={() => navigation.navigate('ItineraryScreen', { place: place })}
                   >
                     <Text style={styles.createPlanButtonText}>Create Travel Plan</Text>
                   </TouchableOpacity>
                 </View>
-                
+
               </View>
             </View>
           ))}
@@ -207,10 +207,10 @@ const StoredItineraryStack = ({ route }) => {
       <HomeStack.Screen
         name="ItineraryScreen"
         component={ItineraryScreen}
-        options={({ route }) => ({ 
-          title: 'Itinerary', 
+        options={({ route }) => ({
+          title: 'Itinerary',
           place: route.params.place,
-          numberOfDays: route.params.place.numberOfDays 
+          numberOfDays: route.params.place.numberOfDays
         })}
       />
     </HomeStack.Navigator>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
     backgroundColor: 'lightyellow',
-    
+
   },
   title: {
     marginTop: 30,
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   placesContainer: {
     marginBottom: 20,
   },
-  
+
   placeContent: {
     flexDirection: 'row',
     alignItems: 'center',

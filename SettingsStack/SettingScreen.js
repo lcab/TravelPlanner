@@ -7,8 +7,6 @@ import { Feather } from '@expo/vector-icons';
 const Stack = createStackNavigator();
 
 const SettingsScreen = ({ navigation, user }) => {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-
 
   if (!user) {
     return (
@@ -37,17 +35,6 @@ const SettingsScreen = ({ navigation, user }) => {
 
       <Text style={styles.name}>{firstName}</Text>
       <Text style={styles.name}>{lastName}</Text>
-
-      <View style={styles.switchContainer}>
-        <Text>Enable Notifications</Text>
-        <Switch
-          value={notificationsEnabled}
-          onValueChange={(value) => setNotificationsEnabled(value)}
-        />
-      </View>
-      <View style={styles.switchContainer}>
-        <Text>Enable Dark Mode</Text>
-      </View>
     </View>
   );
 }

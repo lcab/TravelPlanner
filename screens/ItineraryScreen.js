@@ -4,7 +4,6 @@ import { getDatabase, ref, set, remove, onValue, get, update } from "firebase/da
 
 
 const ItineraryScreen = () => {
-  const [days, setDays] = useState([{ todos: [''] }]);
   const [heartedPlaces, setHeartedPlaces] = useState([]);
 
 
@@ -31,138 +30,144 @@ const ItineraryScreen = () => {
 
   const addDay = (place) => {
     const db = getDatabase();
-    const placeRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days`);
-  
-    // Get the reference to the location's days
-    get(placeRef).then((snapshot) => {
+    const dayMainLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days`);
+
+    get(dayMainLocation).then((snapshot) => {
       const daysData = snapshot.val();
       if (daysData) {
-        // Calculate the index of the last day
         const lastDayIndex = Object.keys(daysData).reduce((maxIndex, key) => {
           const dayNumber = parseInt(key.replace('day', ''));
           return Math.max(maxIndex, dayNumber);
         }, 0);
-  
-        // Calculate the new day number
+
         const newDayNumber = (lastDayIndex + 1).toString().padStart(2, '0');
-  
-        // Construct the reference for the new day
-        const newDayRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newDayNumber}`);
-  
-        // Add the new day to the database
-        set(newDayRef, { ToDos: [''] }).then(() => {
-          console.log('New day added successfully');
+        const dayLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newDayNumber}`);
+
+        set(dayLocation, { ToDos: [''] }).then(() => {
+          console.log('New day added');
         }).catch((error) => {
-          console.error("Error adding new day: ", error);
+          console.error("Error adding new day", error);
         });
       } else {
-        console.log("No existing days found. Adding the first day.");
-        // If there are no existing days, add the first day
-        set(placeRef, { day01: { ToDos: [''] } }).then(() => {
-          console.log('First day added successfully');
+        set(dayMainLocation, { day01: { ToDos: [''] } }).then(() => {
+          console.log('First day added');
         }).catch((error) => {
-          console.error("Error adding first day: ", error);
+          console.error("Error adding first day", error);
         });
       }
     }).catch((error) => {
-      console.error("Error retrieving days data: ", error);
+      console.error("Error adding days", error);
     });
   };
 
   const addTodo = (place, dayIndex) => {
 
-
-    const dayKeys = Object.keys(place.Days);
-    const dayKeyAtIndex = dayKeys[dayIndex];
-    const dayNumber = parseInt(dayKeyAtIndex.replace('day', ''));
+    const allDaysArray = Object.keys(place.Days);
+    const dayAtIndex = allDaysArray[dayIndex];
+    const dayNumber = parseInt(dayAtIndex.replace('day', ''));
     const newdayNumber = dayNumber.toString().padStart(2, '0');
 
     console.log(`Day number for day at index ${dayIndex}: ${newdayNumber}`);
 
     const db = getDatabase();
-    const placeRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}/ToDos`);
-    update(placeRef, { todos: '' }).then(() => {
-      console.log('Todo section updated successfully');
+    const dayMainLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}/ToDos`);
+    update(dayMainLocation, { todos: '' }).then(() => {
+      console.log('Todo added');
     }).catch((error) => {
-      console.error("Error updating todo section: ", error);
+      console.error("Error adding todo", error);
     });
 
   };
 
   const updateTodo = (place, dayIndex, todoIndex, text) => {
     try {
-      const dayKeys = Object.keys(place.Days);
-      const dayKeyAtIndex = dayKeys[dayIndex];
-      const dayNumber = parseInt(dayKeyAtIndex.replace('day', ''));
+      const allDaysArray = Object.keys(place.Days);
+      const dayAtIndex = allDaysArray[dayIndex];
+      const dayNumber = parseInt(dayAtIndex.replace('day', ''));
       const newdayNumber = dayNumber.toString().padStart(2, '0');
 
       const db = getDatabase();
       const todoRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}/ToDos`);
 
       update(todoRef, { [todoIndex]: text }).then(() => {
-        console.log('Todo updated successfully');
+        console.log('Todo updated');
       }).catch((error) => {
-        console.error("Error updating todo section: ", error);
+        console.error("Error updating todo", error);
       });
 
     } catch (error) {
-      console.error('Error updating todo:', error);
+      console.error('Error updating todo', error);
     }
   };
 
   const deleteTodo = (place, dayIndex, todoIndex) => {
 
 
-    const dayKeys = Object.keys(place.Days);
-    const dayKeyAtIndex = dayKeys[dayIndex];
-    const dayNumber = parseInt(dayKeyAtIndex.replace('day', ''));
+    const allDaysArray = Object.keys(place.Days);
+    const dayAtIndex = allDaysArray[dayIndex];
+    const dayNumber = parseInt(dayAtIndex.replace('day', ''));
     const newdayNumber = dayNumber.toString().padStart(2, '0');
 
     console.log(`Day number for day at index ${dayIndex}: ${newdayNumber}`);
 
     const db = getDatabase();
-    const placeRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}/ToDos/${todoIndex}`);
+    const dayMainLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}/ToDos/${todoIndex}`);
 
 
-    remove(placeRef).then(() => {
-      console.log('Todo section updated successfully');
+    remove(dayMainLocation).then(() => {
+      console.log('Todo section deleted');
     }).catch((error) => {
-      console.error("Error updating todo section: ", error);
+      console.error("Error deleting todo", error);
     });
 
   };
 
   const deleteDay = (place, dayIndex) => {
-    const updatedDays = [...days];
-    updatedDays.splice(dayIndex, 1);
-    setDays(updatedDays);
 
-    const dayKeys = Object.keys(place.Days);
-    const dayKeyAtIndex = dayKeys[dayIndex];
-    const dayNumber = parseInt(dayKeyAtIndex.replace('day', ''));
+    const allDaysArray = Object.keys(place.Days);
+    const dayAtIndex = allDaysArray[dayIndex];
+    const dayNumber = parseInt(dayAtIndex.replace('day', ''));
 
     const newdayNumber = dayNumber.toString().padStart(2, '0');
     console.log(`Day number for day at index ${dayIndex}: ${newdayNumber}`);
 
     const db = getDatabase();
-    const placeRef = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}`);
+    const dayMainLocation = ref(db, `locations/${place.name.replace(/\s+/g, '')}/Days/day${newdayNumber}`);
 
-    remove(placeRef).then(() => {
-      console.log('Todo section updated successfully');
+    remove(dayMainLocation).then(() => {
+      console.log('Deleted the Day');
     }).catch((error) => {
-      console.error("Error updating todo section: ", error);
+      console.error("Error deleting Day", error);
     });
   };
 
+
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+
       <Text style={styles.title}>My Daily Trip Itinerary</Text>
-      <Text style={styles.text}>How To Use:</Text>
-      <Text style={styles.text}>Write the things you want to do daily each day you are planning to visit. You can add the amount of days and amount of things you have planned by clicking the add day or add to do item button! If you would like to remove a day/item, simply click on the delete button next to the item/day.</Text>
+      <View style={styles.textBackground}>
+        <Text style={styles.howToHeader}>How To Use:</Text>
+        <Text style={styles.text}>Write the things you want to do daily each day you are planning to visit. You can add the amount of days and amount of things you have planned by clicking the add day or add to do item button! If you would like to remove a day/item, simply click on the delete button next to the item/day.</Text>
+      </View>
       {heartedPlaces.length > 0 && heartedPlaces.map((place, index) => (
         <View key={index}>
-          <Text style={styles.placeText}>{place.name}</Text>
+          <Text style={styles.placeTextName}>{place.name} Plans:</Text>
           <Text style={styles.placeText}>{place.description}</Text>
+          {(!place.startDate || !place.endDate) &&
+            <Text style={styles.dateText}>
+              (Go to StoredItineraryScreen to pick all dates:
+              {place.startDate && <Text style={styles.dateText}> Start Date: {place.startDate}</Text>}
+              {place.endDate && <Text style={styles.dateText}> End Date: {place.endDate}</Text>})
+            </Text>
+          }
+
+          {(place.startDate && place.endDate) &&
+            <Text style={styles.dateText}>
+              Start Date: {place.startDate}, End Date: {place.endDate}
+            </Text>
+          }
           <TouchableOpacity onPress={() => addDay(place)} style={styles.addButton}>
             <Text style={styles.addButtonText}>Add Day</Text>
           </TouchableOpacity>
@@ -190,7 +195,9 @@ const ItineraryScreen = () => {
               <TouchableOpacity onPress={() => addTodo(place, dayIndex)} style={styles.addButton}>
                 <Text style={styles.addButtonText}>Add To-Do Item</Text>
               </TouchableOpacity>
+              {index !== heartedPlaces.length - 1 && <View style={styles.horizontalLine} />}
             </View>
+
           ))}
         </View>
       ))}
@@ -209,10 +216,32 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
+  },
+  howToHeader: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+    marginBottom: 10,
   },
   text: {
-    fontSize: 10,
+    color: 'white',
+    fontSize: 14,
     marginBottom: 15,
+    textAlign: 'center',
+
+  },
+  placeTextName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  placeText: {
+    fontSize: 20,
+    marginBottom: 15,
+    textAlign: 'center',
   },
   dayContainer: {
     marginBottom: 20,
@@ -224,7 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dayHeader: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginTop: 20,
   },
@@ -242,22 +271,41 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   addButton: {
-    backgroundColor: '#ff9147',
+    backgroundColor: 'darkorange',
     paddingHorizontal: 10,
     marginRight: 200,
     paddingVertical: 8,
     borderRadius: 5,
     marginTop: 15,
+    alignSelf: 'flex-start',
+
   },
   addButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
   deleteButtonText: {
-    color: 'orange',
+    color: 'darkorange',
     marginLeft: 10,
     marginHorizontal: 10,
 
+  },
+  textBackground: {
+    backgroundColor: 'darkorange',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 10,
+  },
+  horizontalLine: {
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    marginVertical: 10,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    textAlign: 'center',
   },
 });
 

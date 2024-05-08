@@ -39,6 +39,7 @@ const UserProfile = ({ navigation, user }) => (
     {user ? (
       <>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text style={{ marginRight: 10 }}>{user.displayName}</Text>
           <Text style={{ marginRight: 10 }}>{user.email}</Text>
         </TouchableOpacity>
         <Image

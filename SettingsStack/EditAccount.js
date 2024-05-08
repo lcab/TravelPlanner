@@ -4,7 +4,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Feather } from '@expo/vector-icons';
 import { getAuth, updateProfile } from "firebase/auth";
 import * as ImagePicker from 'expo-image-picker';
-import { screenStyles } from '../styles';
 
 const Stack = createStackNavigator();
 
@@ -12,12 +11,12 @@ const Stack = createStackNavigator();
 
 const EditAccount = ({ navigation, user }) => {
 
-  const { uid, displayName, email, photoURL } = user;
+  const {displayName,  photoURL } = user;
   const [changeName, setChangeName] = useState(displayName ? displayName : '');
   const [newPhotoURL, setNewPhotoURL] = useState(null);
 
 
-  const handleSave = async () => {
+  const saveUserInfo = async () => {
 
     const auth = getAuth();
     const currentUser = auth.currentUser;
@@ -61,7 +60,7 @@ const EditAccount = ({ navigation, user }) => {
         <Image
           source={{ uri: newPhotoURL ? newPhotoURL : photoURL }}
           style={styles.profileImage}
-          
+
         />
         <View style={styles.editIconContainer}>
           <Feather name="edit" size={24} color="#cc5803" />
@@ -70,11 +69,12 @@ const EditAccount = ({ navigation, user }) => {
       <Text>Change Name</Text>
       <TextInput
         style={styles.input}
-        placeholder=" Change Name"
+        placeholder="Change Name"
         value={changeName}
         onChangeText={setChangeName}
       />
-      <Button title="Save" onPress={handleSave} />
+      <Button title="Save" onPress={saveUserInfo} />
+      <Text style={styles.buttonTitle}>**When you press 'save' click another screen to see the changes**</Text>
     </View>
   );
 };

@@ -4,7 +4,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 //import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 
-const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirstName, lastName, setLastName, photo, setPhoto, isLogin, setIsLogin, handleAuthentication }) => {
+const NotLoggedInUserScreen = ({ email, setEmail, password, setPassword, firstName, setFirstName, lastName, setLastName, photo, setPhoto, isLogin, setIsLogin, authenticationProcess }) => {
 
   const getProfilePic = async () => {
 
@@ -74,15 +74,15 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
 
             ) : (
               <View style={styles.noSelectedPhoto}>
-              <TouchableOpacity onPress={getProfilePic}>
-                <Text style={styles.buttonTitle}>Choose A Profile Picture (Click Here)</Text>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={getProfilePic}>
+                  <Text style={styles.buttonTitle}>Choose A Profile Picture (Click Here)</Text>
+                </TouchableOpacity>
               </View>
             )}
           </>
         )}
         <View style={styles.buttonContainer}>
-          <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="white" />
+          <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={authenticationProcess} color="white" />
         </View>
 
         <View style={styles.bottomContainer}>
@@ -106,12 +106,12 @@ const AuthScreen = ({ email, setEmail, password, setPassword, firstName, setFirs
 }
 
 
-const AuthenticatedScreen = ({ user, handleAuthentication }) => {
+const LoggedInUserScreen = ({ user, authenticationProcess }) => {
   return (
     <View style={{ backgroundColor: 'orange', width: '90%' }}>
       <Text style={[styles.title, { paddingBottom: 30 }]}>Welcome</Text>
       <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Logout" onPress={handleAuthentication} color="yellow" />
+      <Button title="Logout" onPress={authenticationProcess} color="yellow" />
     </View>
   );
 };
@@ -135,7 +135,7 @@ const LoginScreen = ({ app }) => {
   }, [auth]);
 
 
-  const handleAuthentication = async () => {
+  const authenticationProcess = async () => {
     try {
       if (user) {
         await signOut(auth);
@@ -195,10 +195,10 @@ const LoginScreen = ({ app }) => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {user ? (
 
-        <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
+        <LoggedInUserScreen user={user} authenticationProcess={authenticationProcess} />
       ) : (
 
-        <AuthScreen
+        <NotLoggedInUserScreen
           email={email}
           setEmail={setEmail}
           password={password}
@@ -211,7 +211,7 @@ const LoginScreen = ({ app }) => {
           setPhoto={setPhoto}
           isLogin={isLogin}
           setIsLogin={setIsLogin}
-          handleAuthentication={handleAuthentication}
+          authenticationProcess={authenticationProcess}
         />
       )}
     </ScrollView>
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: 'orange',
   },
-  noSelectedPhoto:{
+  noSelectedPhoto: {
     alignItems: 'center',
     marginTop: 20,
   },
